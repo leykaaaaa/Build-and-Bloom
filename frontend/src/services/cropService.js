@@ -1,0 +1,25 @@
+const API_URL = "http://localhost:5000";
+
+export async function getCrops() {
+    const response = await fetch(`${API_URL}/api/crops`);
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch crops.");
+    }
+
+    const result = await response.json();
+
+    return result.data;
+}
+
+export async function getCropById(id) {
+    const response = await fetch(`${API_URL}/api/crops/${id}`);
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch crop.");
+    }
+
+    const result = await response.json();
+
+    return result.data;
+}
