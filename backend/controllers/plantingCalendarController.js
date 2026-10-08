@@ -388,10 +388,74 @@ const updatePlantingCalendar = async (req, res) => {
     }
 };
 
+// DELETE PLANTING CALENDAR ENTRY
+const deletePlantingCalendar = async (req, res) => {
+    const connection = await pool.getConnection();
+
+    try {
+        const { id } = req.params;
+
+        const [existingEntry] =
+            await connection.query(
+                `
+                SELECT calendar_id
+                FROM planting_calendar
+                WHERE calendar_id = ?
+                `,
+                [id]
+            );
+
+        if (existingEntry.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message:
+                    "Planting calendar entry not found."
+            });
+        }
+
+        await connection.beginTransaction();
+
+        await connection.query(
+            `
+            DELETE FROM planting_calendar
+            WHERE calendar_id = ?
+            `,
+            [id]
+        );
+
+        await connection.commit();
+
+        res.json({
+            success: true,
+            message:
+                "Planting calendar entry deleted successfully.",
+            calendar_id: id
+        });
+
+    } catch (error) {
+        await connection.rollback();
+
+        console.error(
+            "Error deleting planting calendar:",
+            error
+        );
+
+        res.status(500).json({
+            success: false,
+            message:
+                "Failed to delete planting calendar entry."
+        });
+
+    } finally {
+        connection.release();
+    }
+};
+
 
 module.exports = {
     getPlantingCalendar,
     getPlantingCalendarByLocation,
     createPlantingCalendar,
-    updatePlantingCalendar
+    updatePlantingCalendar,
+    deletePlantingCalendar
 };

@@ -922,39 +922,139 @@ export default function PlantingCalendarManagement() {
                                                 </td>
 
                                                 <td style={tdStyle}>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            setEditingSchedule(entry);
-                                                            setFormData({
-                                                                crop_id: entry.crop_id || "",
-                                                                location_id:
-                                                                    entry.location_id || "",
-                                                                planting_month:
-                                                                    entry.planting_month || "",
-                                                                season: entry.season || "",
-                                                                growing_period:
-                                                                    entry.growing_period || "",
-                                                                harvest_period:
-                                                                    entry.harvest_period || "",
-                                                                notes: entry.notes || "",
-                                                            });
-                                                            setFormError("");
-                                                            setShowAddForm(true);
-                                                        }}
+                                                    <div
                                                         style={{
-                                                            background: "#166534",
-                                                            color: "white",
-                                                            border: "none",
-                                                            padding: "7px 12px",
-                                                            borderRadius: "6px",
-                                                            cursor: "pointer",
-                                                            fontWeight: "600",
-                                                            fontSize: "13px",
+                                                            display: "flex",
+                                                            gap: "8px",
                                                         }}
                                                     >
-                                                        Edit
-                                                    </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setEditingSchedule(entry);
+                                                                setFormData({
+                                                                    crop_id:
+                                                                        entry.crop_id || "",
+                                                                    location_id:
+                                                                        entry.location_id || "",
+                                                                    planting_month:
+                                                                        entry.planting_month || "",
+                                                                    season:
+                                                                        entry.season || "",
+                                                                    growing_period:
+                                                                        entry.growing_period || "",
+                                                                    harvest_period:
+                                                                        entry.harvest_period || "",
+                                                                    notes:
+                                                                        entry.notes || "",
+                                                                });
+                                                                setFormError("");
+                                                                setShowAddForm(true);
+                                                            }}
+                                                            style={{
+                                                                background: "#166534",
+                                                                color: "white",
+                                                                border: "none",
+                                                                padding: "7px 12px",
+                                                                borderRadius: "6px",
+                                                                cursor: "pointer",
+                                                                fontWeight: "600",
+                                                                fontSize: "13px",
+                                                            }}
+                                                        >
+                                                            Edit
+                                                        </button>
+
+                                                        <button
+                                                            type="button"
+                                                            onClick={async () => {
+                                                                const confirmed =
+                                                                    window.confirm(
+                                                                        `Are you sure you want to delete the planting schedule for ${entry.crop_name} in ${entry.location_name}?`
+                                                                    );
+
+                                                                if (!confirmed) {
+                                                                    return;
+                                                                }
+
+                                                                try {
+                                                                    const response =
+                                                                        await fetch(
+                                                                            `http://localhost:5000/api/planting-calendar/${entry.calendar_id}`,
+                                                                            {
+                                                                                method: "DELETE",
+                                                                                headers: {
+                                                                                    Authorization:
+                                                                                        `Bearer ${localStorage.getItem(
+                                                                                            "buildAndBloomToken"
+                                                                                        )}`,
+                                                                                },
+                                                                            }
+                                                                        );
+
+                                                                    const result =
+                                                                        await response.json();
+
+                                                                    if (
+                                                                        !response.ok ||
+                                                                        !result.success
+                                                                    ) {
+                                                                        throw new Error(
+                                                                            result.message ||
+                                                                                "Failed to delete planting schedule."
+                                                                        );
+                                                                    }
+
+                                                                    const calendarResponse =
+                                                                        await fetch(
+                                                                            "http://localhost:5000/api/planting-calendar"
+                                                                        );
+
+                                                                    const calendarResult =
+                                                                        await calendarResponse.json();
+
+                                                                    if (
+                                                                        !calendarResponse.ok ||
+                                                                        !calendarResult.success
+                                                                    ) {
+                                                                        throw new Error(
+                                                                            "Schedule was deleted, but the calendar could not be refreshed."
+                                                                        );
+                                                                    }
+
+                                                                    setCalendar(
+                                                                        calendarResult.data
+                                                                    );
+
+                                                                    alert(
+                                                                        "Planting schedule deleted successfully."
+                                                                    );
+                                                                } catch (error) {
+                                                                    console.error(
+                                                                        "Failed to delete planting schedule:",
+                                                                        error
+                                                                    );
+
+                                                                    alert(
+                                                                        error.message ||
+                                                                            "Failed to delete planting schedule."
+                                                                    );
+                                                                }
+                                                            }}
+                                                            style={{
+                                                                background: "#dc2626",
+                                                                color: "white",
+                                                                border: "none",
+                                                                padding: "7px 12px",
+                                                                borderRadius: "6px",
+                                                                cursor: "pointer",
+                                                                fontWeight: "600",
+                                                                fontSize: "13px",
+                                                            }}
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         )

@@ -4,7 +4,8 @@ const {
     getPlantingCalendar,
     getPlantingCalendarByLocation,
     createPlantingCalendar,
-    updatePlantingCalendar
+    updatePlantingCalendar,
+    deletePlantingCalendar
 } = require("../controllers/plantingCalendarController");
 
 const {
@@ -35,11 +36,29 @@ router.get(
 
 // CREATE PLANTING CALENDAR ENTRY
 // Admin only
+router.post(
+    "/",
+    verifyToken,
+    verifyAdmin,
+    createPlantingCalendar
+);
+
+// UPDATE PLANTING CALENDAR ENTRY
+// Admin only
 router.put(
     "/:id",
     verifyToken,
     verifyAdmin,
     updatePlantingCalendar
+);
+
+// DELETE PLANTING CALENDAR ENTRY
+// Admin only
+router.delete(
+    "/:id",
+    verifyToken,
+    verifyAdmin,
+    deletePlantingCalendar
 );
 
 
