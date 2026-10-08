@@ -13,11 +13,11 @@ export default function UserManagement() {
         const fetchUsers = async () => {
             try {
                 const response = await fetch(
-    "http://localhost:5000/api/auth/users",
-    {
-        headers: getAuthHeaders()
-    }
-);
+                    "http://localhost:5000/api/auth/users",
+                    {
+                        headers: getAuthHeaders()
+                    }
+                );
 
                 const result = await response.json();
 
@@ -222,6 +222,7 @@ export default function UserManagement() {
                                         <th style={thStyle}>ID</th>
                                         <th style={thStyle}>Full Name</th>
                                         <th style={thStyle}>Email</th>
+                                        <th style={thStyle}>Role</th>
                                         <th style={thStyle}>Location</th>
                                         <th style={thStyle}>Registered</th>
                                     </tr>
@@ -246,6 +247,28 @@ export default function UserManagement() {
 
                                             <td style={tdStyle}>
                                                 {user.email}
+                                            </td>
+
+                                            <td style={tdStyle}>
+                                                <span
+                                                    style={{
+                                                        display: "inline-block",
+                                                        padding: "5px 10px",
+                                                        borderRadius: "999px",
+                                                        fontSize: "12px",
+                                                        fontWeight: "600",
+                                                        background:
+                                                            user.role === "admin"
+                                                                ? "#dcfce7"
+                                                                : "#f3f4f6",
+                                                        color:
+                                                            user.role === "admin"
+                                                                ? "#166534"
+                                                                : "#374151",
+                                                    }}
+                                                >
+                                                    {user.role || "user"}
+                                                </span>
                                             </td>
 
                                             <td style={tdStyle}>
