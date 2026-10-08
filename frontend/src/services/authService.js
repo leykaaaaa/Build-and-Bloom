@@ -67,3 +67,38 @@ export async function loginUser(loginData) {
     return result;
 
 }
+
+
+/*
+    Get the saved JWT token.
+*/
+export function getAuthToken() {
+
+    return localStorage.getItem(
+        "buildAndBloomToken"
+    );
+
+}
+
+
+/*
+    Create Authorization headers
+    for protected API requests.
+*/
+export function getAuthHeaders() {
+
+    const token =
+        getAuthToken();
+
+
+    return {
+
+        "Content-Type":
+            "application/json",
+
+        "Authorization":
+            `Bearer ${token}`
+
+    };
+
+}

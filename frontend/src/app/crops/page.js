@@ -230,7 +230,7 @@ export default function CropsPage() {
                                     href={`/crops/${crop.crop_id}`}
                                     className="view-crop-button"
                                 >
-                                    View Details →
+                                    View Details
                                 </Link>
 
                             </div>

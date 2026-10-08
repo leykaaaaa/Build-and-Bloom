@@ -528,7 +528,7 @@ export default function PlanPlantPage() {
                             href="/plants"
                             className="auth-success-link"
                         >
-                            View My Plants →
+                            View My Plants
                         </Link>
 
                     </div>

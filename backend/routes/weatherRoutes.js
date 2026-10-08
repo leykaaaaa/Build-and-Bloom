@@ -5,8 +5,19 @@ const {
     getWeatherForecast
 } = require("../services/weatherService");
 
+const {
+    generateCurrentAdvisories,
+    generateForecastAdvisories
+} = require("../services/weatherAdvisoryService");
+
 const router = express.Router();
 
+
+/*
+|--------------------------------------------------------------------------
+| CURRENT WEATHER
+|--------------------------------------------------------------------------
+*/
 
 router.get("/current", async (req, res) => {
 
@@ -53,6 +64,12 @@ router.get("/current", async (req, res) => {
 });
 
 
+/*
+|--------------------------------------------------------------------------
+| WEATHER FORECAST
+|--------------------------------------------------------------------------
+*/
+
 router.get("/forecast", async (req, res) => {
 
     try {
@@ -91,6 +108,113 @@ router.get("/forecast", async (req, res) => {
         res.status(500).json({
             success: false,
             message: error.message
+        });
+
+    }
+
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| WEATHER ADVISORY
+|--------------------------------------------------------------------------
+|
+| Returns care advisories based on:
+|
+| - Current weather
+| - Upcoming forecast
+|
+*/
+
+router.get("/advisory", async (req, res) => {
+
+    try {
+
+        const { location } = req.query;
+
+
+        if (!location) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Location is required."
+            });
+
+        }
+
+
+        /*
+         * GET CURRENT WEATHER
+         */
+
+        const currentWeather =
+            await getCurrentWeather(location);
+
+
+        /*
+         * GET FORECAST
+         */
+
+        const forecastResult =
+            await getWeatherForecast(location);
+
+
+        const forecast =
+            forecastResult.forecast || [];
+
+
+        /*
+         * GENERATE ADVISORIES
+         */
+
+        const currentAdvisories =
+            generateCurrentAdvisories(
+                currentWeather
+            );
+
+
+        const forecastAdvisories =
+            generateForecastAdvisories(
+                forecast
+            );
+
+
+        /*
+         * RESPONSE
+         */
+
+        res.json({
+
+            success: true,
+
+            location:
+                currentWeather.location,
+
+            currentWeather,
+
+            currentAdvisories,
+
+            forecastAdvisories
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Weather advisory error:",
+            error
+        );
+
+
+        res.status(500).json({
+
+            success: false,
+
+            message:
+                error.message
+
         });
 
     }

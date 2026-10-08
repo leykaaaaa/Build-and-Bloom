@@ -1,30 +1,29 @@
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 html {
   scroll-behavior: smooth;
 }
-
 body {
-  font-family: Arial, Helvetica, sans-serif;
-  background: #f8faf7;
-  color: #26352b;
-  line-height: 1.6;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f8faf7;
+    color: #26352b;
+    line-height: 1.6;
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
+    color: inherit;
+    text-decoration: none;
 }
 
 button,
 input,
 select,
 textarea {
-  font: inherit;
+    font: inherit;
 }
 
 
@@ -33,77 +32,76 @@ textarea {
 /* ============================= */
 
 .navbar {
-  width: 100%;
-  background: #ffffff;
-  border-bottom: 1px solid #e5ebe5;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+    width: 100%;
+    background: #ffffff;
+    border-bottom: 1px solid #e5ebe5;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 .navbar-container {
-  max-width: 1200px;
-  margin: auto;
-  padding: 18px 24px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 30px;
+    max-width: 1200px;
+    margin: auto;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
 }
 
 .navbar-brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 20px;
 }
 
 .brand-icon {
-  font-size: 25px;
+    font-size: 25px;
 }
 
 .brand-text span {
-  color: #e58ca8;
+    color: #e58ca8;
 }
 
 .navbar-links {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    font-size: 14px;
 }
 
 .navbar-links a {
-  color: #536258;
-  transition: 0.2s ease;
+    color: #536258;
+    transition: 0.2s ease;
 }
 
 .navbar-links a:hover {
-  color: #6b9b76;
+    color: #6b9b76;
 }
 
 .navbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .login-button {
-  padding: 9px 17px;
-  color: #536258;
+    padding: 9px 17px;
+    color: #536258;
 }
 
 .register-button {
-  padding: 10px 18px;
-  background: #6b9b76;
-  color: white;
-  border-radius: 8px;
+    padding: 10px 18px;
+    background: #6b9b76;
+    color: white;
+    border-radius: 8px;
 }
 
 .register-button:hover {
-  background: #5c8967;
+    background: #5c8967;
 }
 
 
@@ -112,14 +110,13 @@ textarea {
 /* ============================= */
 
 .hero {
-  max-width: 1200px;
-  margin: auto;
-  padding: 100px 24px;
-
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  align-items: center;
-  gap: 70px;
+    max-width: 1200px;
+    margin: auto;
+    padding: 100px 24px;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    gap: 70px;
 }
 
 .hero-badge {
@@ -1498,10 +1495,10 @@ textarea {
 
 .recommendation-top h3 {
     margin: 4px 0 0;
-
     color: #315c3b;
-
-    font-size: 1.3rem;
+    font-size: 1.2rem;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
 }
 
 
@@ -1509,14 +1506,14 @@ textarea {
     display: flex;
     align-items: baseline;
     gap: 7px;
-
-    margin-top: 24px;
+    margin-top: 20px;
 }
 
 
 .compatibility-score strong {
     color: #315c3b;
-    font-size: 2.1rem;
+    font-size: 2rem;
+    line-height: 1;
 }
 
 
@@ -1527,15 +1524,16 @@ textarea {
 
 
 .compatibility-level {
-    display: inline-block;
-
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    max-width: 100%;
     margin-top: 10px;
-    padding: 7px 12px;
-
-    border-radius: 20px;
-
+    padding: 6px 10px;
+    border-radius: 8px;
     font-size: 0.75rem;
     font-weight: 700;
+    line-height: 1.3;
 }
 
 
@@ -1559,13 +1557,9 @@ textarea {
 
 .factor-list {
     display: grid;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
-
-    margin-top: 22px;
+    margin-top: 20px;
 }
 
 
@@ -1573,32 +1567,46 @@ textarea {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    padding: 10px 11px;
-
-    border-radius: 10px;
-
+    min-width: 0;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid #f0efeb;
+    border-radius: 9px;
     background: #faf8f9;
 }
 
 
 .factor-list span {
+    min-width: 0;
     color: #6f7771;
     font-size: 0.78rem;
+    line-height: 1.35;
 }
 
 
 .factor-list strong {
+    flex: 0 0 auto;
     color: #315c3b;
     font-size: 0.78rem;
 }
 
 
+.factor-list .location-factor {
+    border-color: #dce9dc;
+    background: #f1f7f0;
+}
+
+
+.location-factor span,
+.location-factor strong {
+    color: #315c3b;
+    font-weight: 700;
+}
+
+
 .recommendation-explanation {
     margin-top: 20px;
-
     padding-top: 18px;
-
     border-top: 1px solid #eee7e9;
 }
 
@@ -1611,41 +1619,39 @@ textarea {
 
 .recommendation-explanation p {
     margin: 7px 0 0;
-
     color: #707870;
-
     font-size: 0.83rem;
     line-height: 1.55;
+    overflow-wrap: anywhere;
 }
 
 
 .recommendation-actions {
     display: flex;
     gap: 10px;
-
-    margin-top: 22px;
+    margin-top: auto;
+    padding-top: 22px;
 }
 
 
 .view-recommendation,
 .plan-recommendation {
     flex: 1;
-
-    padding: 11px;
-
-    border-radius: 10px;
-
+    min-width: 0;
+    padding: 11px 8px;
+    border: 1px solid transparent;
+    border-radius: 9px;
     text-align: center;
-
     text-decoration: none;
-
     font-size: 0.8rem;
     font-weight: 700;
+    line-height: 1.35;
 }
 
 
 .view-recommendation {
     background: #f3f6f3;
+    border-color: #e3eae3;
     color: #315c3b;
 }
 
@@ -1713,6 +1719,34 @@ textarea {
 
     .results-header {
         flex-direction: column;
+        gap: 14px;
+    }
+
+    .results-header h2 {
+        font-size: 1.55rem;
+    }
+
+    .results-count {
+        min-height: 0;
+        align-items: flex-start;
+        padding: 10px 13px;
+    }
+
+    .results-count span {
+        text-align: left;
+    }
+
+    .assessment-weather-summary {
+        align-items: flex-start;
+        padding: 14px;
+    }
+
+    .assessment-weather-summary > div:last-child {
+        grid-template-columns: 1fr auto;
+    }
+
+    .assessment-weather-summary strong {
+        font-size: 1.05rem;
     }
 
     .factor-list {
@@ -1721,6 +1755,10 @@ textarea {
 
     .recommendation-actions {
         flex-direction: column;
+    }
+
+    .recommendation-card {
+        padding: 18px;
     }
 
 }
@@ -1993,36 +2031,53 @@ textarea {
 }
 
 
-/* ADVISORY */
+
+/* =========================================================
+   WEATHER-BASED CARE ADVISORIES
+========================================================= */
+
+.weather-advisories-section {
+    margin-top: 35px;
+}
+
+.weather-advisory-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 20px;
+}
 
 .weather-advisory {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 18px;
 
-    margin-top: 25px;
     padding: 22px 25px;
 
     border-radius: 18px;
+    border: 1px solid #f0dfc8;
 
     background: #fff4e6;
-    border: 1px solid #f0dfc8;
 }
+
+/* ADVISORY ICON */
 
 .advisory-icon {
     display: flex;
     align-items: center;
     justify-content: center;
 
+    flex-shrink: 0;
     min-width: 58px;
     height: 58px;
 
     border-radius: 16px;
-
     background: #ffffff;
 
     font-size: 1.8rem;
 }
+
+/* ADVISORY CONTENT */
 
 .weather-advisory span {
     color: #9a7847;
@@ -2043,9 +2098,109 @@ textarea {
 
     color: #786b59;
     font-size: 0.84rem;
-    line-height: 1.5;
+    line-height: 1.6;
 }
 
+.weather-advisory small {
+    display: block;
+    margin-top: 10px;
+
+    color: #9a7847;
+    font-size: 0.75rem;
+}
+
+
+/* =========================================================
+   ADVISORY PRIORITIES
+========================================================= */
+
+/* INFORMATION */
+
+.weather-advisory.priority-info {
+    background: #f0f7ed;
+    border-color: #d8e8d0;
+}
+
+.weather-advisory.priority-info span {
+    color: #64865b;
+}
+
+.weather-advisory.priority-info h3 {
+    color: #496b42;
+}
+
+.weather-advisory.priority-info p {
+    color: #657b60;
+}
+
+
+/* WARNING */
+
+.weather-advisory.priority-warning {
+    background: #fff4e6;
+    border-color: #f0dfc8;
+}
+
+.weather-advisory.priority-warning span {
+    color: #9a7847;
+}
+
+.weather-advisory.priority-warning h3 {
+    color: #6c593d;
+}
+
+.weather-advisory.priority-warning p {
+    color: #786b59;
+}
+
+
+/* HIGH PRIORITY */
+
+.weather-advisory.priority-high {
+    background: #fff0ed;
+    border-color: #f1d0c8;
+}
+
+.weather-advisory.priority-high span {
+    color: #b45f50;
+}
+
+.weather-advisory.priority-high h3 {
+    color: #8f493e;
+}
+
+.weather-advisory.priority-high p {
+    color: #85635d;
+}
+
+
+/* =========================================================
+   RESPONSIVE DESIGN
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .weather-advisory {
+        gap: 13px;
+        padding: 18px;
+    }
+
+    .advisory-icon {
+        min-width: 46px;
+        height: 46px;
+        border-radius: 13px;
+        font-size: 1.4rem;
+    }
+
+    .weather-advisory h3 {
+        font-size: 0.98rem;
+    }
+
+    .weather-advisory p {
+        font-size: 0.8rem;
+    }
+
+}
 
 /* FORECAST */
 
@@ -4770,4 +4925,287 @@ textarea {
     height: 100%;
     object-fit: cover;
     display: block;
+}
+
+/* Assessment result layout */
+.assessment-results {
+    min-width: 0;
+    margin-top: 52px;
+}
+
+.results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.results-header > div:first-child {
+    min-width: 0;
+}
+
+.results-header h2 {
+    margin: 8px 0 6px;
+    color: #315c3b;
+    font-size: 1.8rem;
+    line-height: 1.25;
+}
+
+.results-header p {
+    max-width: 620px;
+    margin: 0;
+    color: #747b75;
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+.results-count {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 128px;
+    min-height: 76px;
+    padding: 12px 16px;
+    border: 1px solid #f0dce3;
+    border-radius: 14px;
+    background: #fff0f5;
+    color: #315c3b;
+    font-size: 1.55rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.results-count span {
+    margin-top: 5px;
+    color: #858b86;
+    font-size: 0.7rem;
+    font-weight: 500;
+    line-height: 1.3;
+    text-align: center;
+}
+
+.assessment-weather-summary {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 24px;
+    padding: 16px 19px;
+    border: 1px solid #f0dfc8;
+    border-radius: 14px;
+    background: #fff8ed;
+}
+
+.assessment-weather-icon {
+    display: flex;
+    flex: 0 0 46px;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: #ffffff;
+    font-size: 1.35rem;
+}
+
+.assessment-weather-summary > div:last-child {
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: baseline;
+    column-gap: 10px;
+    min-width: 0;
+}
+
+.assessment-weather-summary span {
+    color: #8a7048;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.assessment-weather-summary strong {
+    color: #5d633f;
+    font-size: 1.2rem;
+}
+
+.assessment-weather-summary p {
+    grid-column: 1 / -1;
+    margin: 2px 0 0;
+    color: #786b59;
+    font-size: 0.78rem;
+    line-height: 1.45;
+}
+
+.recommendation-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 18px;
+}
+
+.recommendation-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 22px;
+    border: 1px solid #e7e9e3;
+    border-radius: 15px;
+    background: #ffffff;
+    box-shadow: 0 6px 20px rgba(49, 70, 52, 0.05);
+}
+
+.recommendation-top {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+}
+
+.recommendation-top > div:last-child {
+    min-width: 0;
+}
+
+.recommendation-icon {
+    flex: 0 0 52px;
+}
+
+.recommendation-top h3 {
+    font-size: 1.2rem;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.compatibility-score {
+    align-items: baseline;
+    gap: 7px;
+    margin-top: 20px;
+}
+
+.compatibility-score strong {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.compatibility-level {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    max-width: 100%;
+    padding: 6px 10px;
+    border-radius: 8px;
+    line-height: 1.3;
+}
+
+.factor-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.factor-list div {
+    min-width: 0;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid #f0efeb;
+    border-radius: 9px;
+}
+
+.factor-list span {
+    min-width: 0;
+    line-height: 1.35;
+}
+
+.factor-list strong {
+    flex: 0 0 auto;
+}
+
+.factor-list .location-factor {
+    border-color: #dce9dc;
+    background: #f1f7f0;
+}
+
+.location-factor span,
+.location-factor strong {
+    color: #315c3b;
+    font-weight: 700;
+}
+
+.recommendation-explanation p {
+    overflow-wrap: anywhere;
+}
+
+.recommendation-actions {
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 22px;
+}
+
+.view-recommendation,
+.plan-recommendation {
+    min-width: 0;
+    padding: 11px 8px;
+    border-radius: 9px;
+    line-height: 1.35;
+}
+
+.view-recommendation {
+    border: 1px solid #e3eae3;
+}
+
+@media (max-width: 750px) {
+    .recommendation-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .results-header {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 500px) {
+    .results-header {
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .results-header h2 {
+        font-size: 1.55rem;
+    }
+
+    .results-count {
+        min-height: 0;
+        align-items: flex-start;
+        padding: 10px 13px;
+    }
+
+    .results-count span {
+        text-align: left;
+    }
+
+    .assessment-weather-summary {
+        align-items: flex-start;
+        padding: 14px;
+    }
+
+    .assessment-weather-summary > div:last-child {
+        grid-template-columns: 1fr auto;
+    }
+
+    .assessment-weather-summary strong {
+        font-size: 1.05rem;
+    }
+
+    .factor-list {
+        grid-template-columns: 1fr;
+    }
+
+    .recommendation-actions {
+        flex-direction: column;
+    }
+
+    .recommendation-card {
+        padding: 18px;
+    }
 }

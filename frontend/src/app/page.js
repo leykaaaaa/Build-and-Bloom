@@ -34,7 +34,7 @@ export default function Home() {
                             href="/assessment"
                             className="primary-button"
                         >
-                            Start Crop Assessment →
+                            Start Crop Assessment 
                         </Link>
 
                         <Link
@@ -684,7 +684,7 @@ export default function Home() {
                         href="/assessment"
                         className="primary-button"
                     >
-                        Start Crop Assessment →
+                        Start Crop Assessment 
                     </Link>
 
                 </div>

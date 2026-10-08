@@ -18,15 +18,19 @@ export default function AssessmentPage() {
 
     const selectedCrop = searchParams.get("crop");
 
-    const [form, setForm] = useState({
-        location: "",
-        soil: "",
-        water: "",
-        sunlight: "",
-        environment: ""
-    });
+   const [form, setForm] = useState({
+    location: "",
+    soil: "",
+    water: "",
+    sunlight: "",
+    environment: "",
+    planting_month: ""
+});
 
     const [specificCrop, setSpecificCrop] = useState(null);
+    const [locations, setLocations] = useState([]);
+const [locationsLoading, setLocationsLoading] = useState(true);
+const [locationsError, setLocationsError] = useState("");
 
     const [results, setResults] = useState([]);
 
@@ -93,6 +97,55 @@ export default function AssessmentPage() {
         }
 
     }, [router]);
+
+
+    
+/*
+    Load all Pangasinan locations from the database API.
+*/
+
+useEffect(() => {
+
+    async function loadLocations() {
+
+        try {
+
+            setLocationsLoading(true);
+            setLocationsError("");
+
+            const response = await fetch(
+                "http://localhost:5000/api/locations"
+            );
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(
+                    result.message || "Failed to load locations."
+                );
+            }
+
+            setLocations(result.data || []);
+
+        } catch (error) {
+
+            console.error("Location loading error:", error);
+
+            setLocationsError(
+                error.message || "Unable to load locations."
+            );
+
+        } finally {
+
+            setLocationsLoading(false);
+
+        }
+
+    }
+
+    loadLocations();
+
+}, []);
 
 
     /*
@@ -305,38 +358,39 @@ const result = await assessCrops({
                                 Location
                             </label>
 
-                            <select
-                                name="location"
-                                value={form.location}
-                                onChange={handleChange}
-                                required
-                            >
+                            
+<select
+    name="location"
+    value={form.location}
+    onChange={handleChange}
+    required
+    disabled={locationsLoading || locations.length === 0}
+>
 
-                                <option value="">
-                                    Select your location
-                                </option>
+    <option value="">
+        {locationsLoading
+            ? "Loading locations..."
+            : "Select your location"}
+    </option>
 
-                                <option value="Dagupan">
-                                    Dagupan
-                                </option>
+    {locations.map((location) => (
 
-                                <option value="Lingayen">
-                                    Lingayen
-                                </option>
+        <option
+            key={location.location_id}
+            value={location.location_name}
+        >
+            {location.location_name} ({location.location_type})
+        </option>
 
-                                <option value="Urdaneta">
-                                    Urdaneta
-                                </option>
+    ))}
 
-                                <option value="Santa Barbara">
-                                    Santa Barbara
-                                </option>
+</select>
 
-                                <option value="San Carlos">
-                                    San Carlos
-                                </option>
-
-                            </select>
+{locationsError && (
+    <p className="form-error">
+        {locationsError}
+    </p>
+)}
 
                         </div>
 
@@ -508,7 +562,46 @@ const result = await assessCrops({
                             </div>
 
                         </div>
+                        {/* PLANTING MONTH */}
 
+                        <div className="assessment-field">
+
+                            <label>
+                                Intended Planting Month
+                            </label>
+
+                            <select
+                                name="planting_month"
+                                value={form.planting_month}
+                                onChange={handleChange}
+                                required
+                            >
+                                <option value="">
+                                    Select planting month
+                                </option>
+
+                                {[
+                                    "January",
+                                    "February",
+                                    "March",
+                                    "April",
+                                    "May",
+                                    "June",
+                                    "July",
+                                    "August",
+                                    "September",
+                                    "October",
+                                    "November",
+                                    "December"
+                                ].map((month) => (
+                                    <option key={month} value={month}>
+                                        {month}
+                                    </option>
+                                ))}
+
+                            </select>
+
+                        </div>
 
                         {/* WEATHER NOTE */}
 
@@ -547,7 +640,7 @@ const result = await assessCrops({
 
                             {loading
                                 ? "Analyzing..."
-                                : "Analyze Growing Conditions →"
+                                : "Analyze Growing Conditions"
                             }
 
                         </button>
@@ -618,11 +711,11 @@ const result = await assessCrops({
                             <div className="results-count">
                                 {results.length}
 
-<span>
-    {results.length === 1
-        ? "suitable crop found"
-        : "suitable crops found"}
-</span>
+                            <span>
+                                {results.length === 1
+                                    ? "suitable crop found"
+                                    : "suitable crops found"}
+                            </span>
 
                             </div>
 
@@ -675,24 +768,24 @@ const result = await assessCrops({
                                     
                                 </div>
                                 <h3>
-    No suitable crops found
-</h3>
+                                    No suitable crops found
+                                </h3>
 
-<p>
-    Based on the growing conditions you provided,
-    none of the available crops currently meet
-    the recommended compatibility level. Try
-    adjusting your growing conditions or explore
-    the Crop Catalogue to learn more about
-    different crops.
-</p>
+                                <p>
+                                    Based on the growing conditions you provided,
+                                    none of the available crops currently meet
+                                    the recommended compatibility level. Try
+                                    adjusting your growing conditions or explore
+                                    the Crop Catalogue to learn more about
+                                    different crops.
+                                </p>
 
-<Link
-    href="/crops"
-    className="no-results-button"
->
-    Explore Crop Catalogue →
-</Link>
+                                <Link
+                                    href="/crops"
+                                    className="no-results-button"
+                                >
+                                    Explore Crop Catalogue 
+                                </Link>
 
                             </div>
 
@@ -768,88 +861,76 @@ const result = await assessCrops({
 
                                         <div className="factor-list">
 
-
-                                            <div>
-
-                                                <span>
-                                                     Soil
-                                                </span>
-
-                                                <strong>
-                                                    {crop.factors.soil}%
-                                                </strong>
-
-                                            </div>
-
-
-                                            <div>
-
-                                                <span>
-                                                     Water
-                                                </span>
-
-                                                <strong>
-                                                    {crop.factors.water}%
-                                                </strong>
-
-                                            </div>
-
-
-                                            <div>
-
-                                                <span>
-                                                    ️ Sunlight
-                                                </span>
-
-                                                <strong>
-                                                    {crop.factors.sunlight}%
-                                                </strong>
-
-                                            </div>
-
-
-                                            <div>
-
-                                                <span>
-                                                     Environment
-                                                </span>
-
-                                                <strong>
-                                                    {crop.factors.environment}%
-                                                </strong>
-
-                                            </div>
-
-
-                                            <div>
-
-                                                <span>
-                                                    ️ Weather
-                                                </span>
-
-                                                <strong>
-                                                    {crop.factors.weather}%
-                                                </strong>
-
-                                            </div>
-
-
+                                        <div>
+                                            <span>Soil</span>
+                                            <strong>{crop.factors.soil}%</strong>
                                         </div>
 
+                                        <div>
+                                            <span>Water</span>
+                                            <strong>{crop.factors.water}%</strong>
+                                        </div>
+
+                                        <div>
+                                            <span>Sunlight</span>
+                                            <strong>{crop.factors.sunlight}%</strong>
+                                        </div>
+
+                                        <div>
+                                            <span>Environment</span>
+                                            <strong>{crop.factors.environment}%</strong>
+                                        </div>
+
+                                        <div>
+                                            <span>Weather</span>
+                                            <strong>{crop.factors.weather}%</strong>
+                                        </div>
+
+                                        <div>
+                                            <span>Planting Season</span>
+                                            <strong>{crop.factors.season}%</strong>
+                                        </div>
+
+                                        <div className="location-factor">
+                                            <span>Location Suitability</span>
+                                            <strong>{crop.factors.location_suitability ?? "N/A"}{crop.factors.location_suitability != null ? "%" : ""}</strong>
+                                        </div>
+
+                                        <div>
+                                            <span>Flood Compatibility</span>
+                                            <strong>{crop.factors.flood ?? "N/A"}{crop.factors.flood != null ? "%" : ""}</strong>
+                                        </div>
+
+                                        <div>
+                                            <span>Drainage Compatibility</span>
+                                            <strong>{crop.factors.drainage ?? "N/A"}{crop.factors.drainage != null ? "%" : ""}</strong>
+                                        </div>
+
+                                    </div>
 
                                         {/* EXPLANATION */}
 
-                                        <div className="recommendation-explanation">
+                                                <div className="recommendation-explanation">
 
-                                            <strong>
-                                                Why?
-                                            </strong>
+                                    <strong>
+                                        Why?
+                                    </strong>
 
-                                            <p>
-                                                {crop.explanation}
-                                            </p>
+                                    <p>
+                                        {crop.explanation}
+                                    </p>
 
-                                        </div>
+                                    {crop.planting_season && (
+                                        <p>
+                                            <strong>Selected planting month:</strong>{" "}
+                                            {form.planting_month} — {crop.planting_season}
+                                        </p>
+                                    )}
+
+                                </div>
+
+
+
 
 
                                         {/* ACTIONS */}
@@ -862,12 +943,12 @@ const result = await assessCrops({
                                             >
                                                 View Crop
                                             </Link>
-<Link
-    href={`/plants/plan?crop=${crop.crop_id}`}
-    className="plan-recommendation"
->
-    Plan This Plant
-</Link>
+                                    <Link
+                                        href={`/plants/plan?crop=${crop.crop_id}`}
+                                        className="plan-recommendation"
+                                    >
+                                        Plan This Plant
+                                    </Link>
 
                                         </div>
 

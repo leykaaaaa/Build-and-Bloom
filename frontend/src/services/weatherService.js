@@ -1,3 +1,4 @@
+
 const API_URL = "http://localhost:5000";
 
 export async function getCurrentWeather(location) {
@@ -7,7 +8,7 @@ export async function getCurrentWeather(location) {
 
     const result = await response.json();
 
-    if (!response.ok) {
+    if (!response.ok || !result.success) {
         throw new Error(
             result.message || "Failed to retrieve current weather."
         );
@@ -24,11 +25,32 @@ export async function getWeatherForecast(location) {
 
     const result = await response.json();
 
-    if (!response.ok) {
+    if (!response.ok || !result.success) {
         throw new Error(
             result.message || "Failed to retrieve weather forecast."
         );
     }
 
     return result.data;
+}
+
+
+// =========================================================
+// WEATHER-BASED CARE ADVISORIES
+// =========================================================
+
+export async function getWeatherAdvisory(location) {
+    const response = await fetch(
+        `${API_URL}/api/weather/advisory?location=${encodeURIComponent(location)}`
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+        throw new Error(
+            result.message || "Failed to retrieve weather advisories."
+        );
+    }
+
+    return result;
 }

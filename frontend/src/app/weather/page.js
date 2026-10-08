@@ -4,17 +4,10 @@ import { useEffect, useState } from "react";
 
 import {
     getCurrentWeather,
-    getWeatherForecast
+    getWeatherForecast,
+    getWeatherAdvisory
 } from "../../services/weatherService";
 
-
-const locations = [
-    "Dagupan",
-    "Lingayen",
-    "Urdaneta",
-    "Santa Barbara",
-    "San Carlos"
-];
 
 
 function getWeatherIcon(condition) {
@@ -44,72 +37,6 @@ function getWeatherIcon(condition) {
     return "️";
 }
 
-
-function getAdvisory(weather) {
-
-    if (!weather) {
-        return null;
-    }
-
-    const temperature =
-        Number(weather.temperature);
-
-    const humidity =
-        Number(weather.humidity);
-
-    const rainfall =
-        Number(weather.rainfall);
-
-
-    if (
-        weather.weather_condition
-            ?.toLowerCase()
-            .includes("rain") ||
-        rainfall > 0
-    ) {
-
-        return {
-            icon: "️",
-            title: "Rainy Weather",
-            message:
-                "Rainfall is currently present. Consider reducing or postponing watering to avoid overwatering your plants."
-        };
-
-    }
-
-
-    if (temperature >= 33) {
-
-        return {
-            icon: "️",
-            title: "Hot Weather",
-            message:
-                "High temperatures may increase water loss. Monitor soil moisture and provide adequate water when needed."
-        };
-
-    }
-
-
-    if (humidity >= 85) {
-
-        return {
-            icon: "",
-            title: "High Humidity",
-            message:
-                "Humidity is high. Monitor your plants and avoid unnecessary watering to help prevent excessive moisture."
-        };
-
-    }
-
-
-    return {
-        icon: "",
-        title: "Favorable Conditions",
-        message:
-            "Current weather conditions do not indicate a major weather-related concern. Continue monitoring your plants and soil."
-    };
-
-}
 
 
 function formatForecastDate(datetime) {
@@ -163,6 +90,56 @@ export default function WeatherPage() {
 
     const [error, setError] =
         useState("");
+
+        const [currentAdvisories, setCurrentAdvisories] =
+    useState([]);
+
+const [forecastAdvisories, setForecastAdvisories] =
+    useState([]);
+
+const [advisoryError, setAdvisoryError] =
+    useState("");
+
+    const [locations, setLocations] = useState([]);
+
+    // =========================================================
+// LOAD PANGASINAN LOCATIONS
+// =========================================================
+
+useEffect(() => {
+
+    async function loadLocations() {
+
+        try {
+
+            const response = await fetch(
+                "http://localhost:5000/api/locations"
+            );
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(
+                    result.message || "Failed to load locations."
+                );
+            }
+
+            setLocations(result.data || []);
+
+        } catch (error) {
+
+            console.error(
+                "Failed to load locations:",
+                error
+            );
+
+        }
+
+    }
+
+    loadLocations();
+
+}, []);
 
 
     // =========================================================
@@ -221,57 +198,89 @@ export default function WeatherPage() {
     // LOAD WEATHER
     // =========================================================
 
-    async function loadWeather(selectedLocation) {
+async function loadWeather(selectedLocation) {
 
-        setLoading(true);
+    setLoading(true);
+    setError("");
+    setAdvisoryError("");
 
-        setError("");
+    setCurrentAdvisories([]);
+    setForecastAdvisories([]);
+
+    try {
+
+        // =========================================
+        // LOAD CURRENT WEATHER AND FORECAST
+        // =========================================
+
+        const [
+            current,
+            forecastData
+        ] = await Promise.all([
+            getCurrentWeather(selectedLocation),
+            getWeatherForecast(selectedLocation)
+        ]);
+
+        setCurrentWeather(current);
+
+        setForecast(
+            forecastData.forecast || []
+        );
+
+
+        // =========================================
+        // LOAD WEATHER-BASED CARE ADVISORIES
+        // =========================================
 
         try {
 
-            const [
-                current,
-                forecastData
-            ] = await Promise.all([
-                getCurrentWeather(selectedLocation),
-                getWeatherForecast(selectedLocation)
-            ]);
+            const advisoryData =
+                await getWeatherAdvisory(selectedLocation);
 
-
-            setCurrentWeather(current);
-
-            setForecast(
-                forecastData.forecast || []
+            setCurrentAdvisories(
+                advisoryData.currentAdvisories || []
             );
 
-        } catch (err) {
-
-            console.error(err);
-
-            setError(
-                err.message ||
-                "Unable to load weather information."
+            setForecastAdvisories(
+                advisoryData.forecastAdvisories || []
             );
 
-            setCurrentWeather(null);
+        } catch (advisoryErr) {
 
-            setForecast([]);
+            console.error(
+                "Weather advisory error:",
+                advisoryErr
+            );
 
-        } finally {
-
-            setLoading(false);
+            setAdvisoryError(
+                advisoryErr.message ||
+                "Unable to load plant care advisories."
+            );
 
         }
 
+    } catch (err) {
+
+        console.error(err);
+
+        setError(
+            err.message ||
+            "Unable to load weather information."
+        );
+
+        setCurrentWeather(null);
+        setForecast([]);
+
+        setCurrentAdvisories([]);
+        setForecastAdvisories([]);
+
+    } finally {
+
+        setLoading(false);
+
     }
 
-
-    useEffect(() => {
-
-        loadWeather(location);
-
-    }, []);
-
+}
 
     function handleLocationChange(event) {
 
@@ -283,10 +292,6 @@ export default function WeatherPage() {
         loadWeather(selectedLocation);
 
     }
-
-
-    const advisory =
-        getAdvisory(currentWeather);
 
 
     return (
@@ -334,25 +339,24 @@ export default function WeatherPage() {
                     </div>
 
 
-                    <select
-                        value={location}
-                        onChange={handleLocationChange}
-                    >
+                <select
+    value={location}
+    onChange={handleLocationChange}
+    disabled={locations.length === 0}
+>
 
-                        {locations.map(
-                            (item) => (
+    {locations.map((item) => (
 
-                                <option
-                                    key={item}
-                                    value={item}
-                                >
-                                    {item}
-                                </option>
+        <option
+            key={item.location_id}
+            value={item.location_name}
+        >
+            {item.location_name}
+        </option>
 
-                            )
-                        )}
+    ))}
 
-                    </select>
+</select>
 
                 </div>
 
@@ -551,37 +555,184 @@ export default function WeatherPage() {
                         </section>
 
 
-                        {/* ADVISORY */}
+                       
+{/* =========================================================
+    CURRENT WEATHER-BASED CARE ADVISORIES
+========================================================= */}
 
-                        {advisory && (
+<section className="weather-advisories-section">
 
-                            <section className="weather-advisory">
+    <div className="weather-section-title">
 
-                                <div className="advisory-icon">
+        <div>
 
-                                    {advisory.icon}
+            <span className="section-badge">
+                Smart Plant Care
+            </span>
 
-                                </div>
+            <h2>
+                Current Care Advisories
+            </h2>
 
-                                <div>
+        </div>
 
-                                    <span>
-                                        Smart Care Advisory
-                                    </span>
+    </div>
 
-                                    <h3>
-                                        {advisory.title}
-                                    </h3>
 
-                                    <p>
-                                        {advisory.message}
-                                    </p>
+    {currentAdvisories.length > 0 ? (
 
-                                </div>
+        <div className="weather-advisory-list">
 
-                            </section>
+            {currentAdvisories.map(
+                (advisory, index) => (
 
-                        )}
+                    <article
+                        className={`weather-advisory priority-${advisory.priority}`}
+                        key={`${advisory.type}-${index}`}
+                    >
+
+                        <div className="advisory-icon">
+                            {advisory.priority === "high"
+                                ? "️"
+                                : advisory.priority === "warning"
+                                    ? "️"
+                                    : ""}
+                        </div>
+
+                        <div>
+
+                            <span>
+                                {advisory.priority.toUpperCase()}
+                            </span>
+
+                            <h3>
+                                {advisory.title}
+                            </h3>
+
+                            <p>
+                                {advisory.message}
+                            </p>
+
+                        </div>
+
+                    </article>
+
+                )
+            )}
+
+        </div>
+
+    ) : (
+
+        <p>
+            No current care advisories available.
+        </p>
+
+    )}
+
+</section>
+
+
+{/* =========================================================
+    FORECAST-BASED CARE ADVISORIES
+========================================================= */}
+
+<section className="weather-advisories-section">
+
+    <div className="weather-section-title">
+
+        <div>
+
+            <span className="section-badge">
+                Weather Preparation
+            </span>
+
+            <h2>
+                Upcoming Care Advisories
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    {forecastAdvisories.length > 0 ? (
+
+        <div className="weather-advisory-list">
+
+            {forecastAdvisories.map(
+                (advisory, index) => (
+
+                    <article
+                        className={`weather-advisory priority-${advisory.priority}`}
+                        key={`${advisory.type}-${index}`}
+                    >
+
+                        <div className="advisory-icon">
+                            {advisory.priority === "high"
+                                ? "️"
+                                : advisory.priority === "warning"
+                                    ? "️"
+                                    : ""}
+                        </div>
+
+                        <div>
+
+                            <span>
+                                {advisory.priority.toUpperCase()}
+                            </span>
+
+                            <h3>
+                                {advisory.title}
+                            </h3>
+
+                            <p>
+                                {advisory.message}
+                            </p>
+
+                            {advisory.occurrences !== undefined && (
+
+                                <small>
+                                    Detected in {advisory.occurrences} forecast entries.
+                                </small>
+
+                            )}
+
+                        </div>
+
+                    </article>
+
+                )
+            )}
+
+        </div>
+
+    ) : (
+
+        <p>
+            No upcoming care advisories available.
+        </p>
+
+    )}
+
+
+    {advisoryError && (
+
+        <div className="weather-error">
+
+            <strong>
+                Unable to load care advisories
+            </strong>
+
+            <p>
+                {advisoryError}
+            </p>
+
+        </div>
+
+    )}
+
+</section>
 
 
                         {/* FORECAST */}

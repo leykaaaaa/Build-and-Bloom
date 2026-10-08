@@ -87,8 +87,368 @@ const getCropById = async (req, res) => {
     }
 };
 
+const createCrop = async (req, res) => {
+    const connection = await pool.getConnection();
+
+    try {
+        const {
+            crop_name,
+            category,
+            description,
+            growing_period,
+            harvest_period,
+            soil_type,
+            water_requirement,
+            sunlight_requirement,
+            min_temperature,
+            max_temperature,
+            season,
+            environment
+        } = req.body;
+
+        // Validate required fields
+        if (
+            !crop_name ||
+            !category ||
+            !soil_type ||
+            !water_requirement ||
+            !sunlight_requirement ||
+            min_temperature === undefined ||
+            max_temperature === undefined ||
+            !season ||
+            !environment
+        ) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Please provide all required crop and requirement information."
+            });
+        }
+
+        // Check if crop already exists
+        const [existingCrop] = await connection.query(
+            `
+            SELECT crop_id
+            FROM crops
+            WHERE crop_name = ?
+            `,
+            [crop_name.trim()]
+        );
+
+        if (existingCrop.length > 0) {
+            return res.status(409).json({
+                success: false,
+                message: "A crop with this name already exists."
+            });
+        }
+
+        await connection.beginTransaction();
+
+        // Insert crop
+        const [cropResult] = await connection.query(
+            `
+            INSERT INTO crops
+            (
+                crop_name,
+                category,
+                description,
+                growing_period,
+                harvest_period
+            )
+            VALUES (?, ?, ?, ?, ?)
+            `,
+            [
+                crop_name.trim(),
+                category.trim(),
+                description || null,
+                growing_period || null,
+                harvest_period || null
+            ]
+        );
+
+        const cropId = cropResult.insertId;
+
+        // Insert crop requirements
+        await connection.query(
+            `
+            INSERT INTO crop_requirements
+            (
+                crop_id,
+                soil_type,
+                water_requirement,
+                sunlight_requirement,
+                min_temperature,
+                max_temperature,
+                season,
+                environment
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            `,
+            [
+                cropId,
+                soil_type.trim(),
+                water_requirement.trim(),
+                sunlight_requirement.trim(),
+                min_temperature,
+                max_temperature,
+                season.trim(),
+                environment.trim()
+            ]
+        );
+
+        await connection.commit();
+
+        res.status(201).json({
+            success: true,
+            message: "Crop created successfully.",
+            crop_id: cropId
+        });
+
+    } catch (error) {
+        await connection.rollback();
+
+        console.error(
+            "Crop creation error:",
+            error
+        );
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to create crop."
+        });
+
+    } finally {
+        connection.release();
+    }
+};
+
+const updateCrop = async (req, res) => {
+    const connection = await pool.getConnection();
+
+    try {
+        const { id } = req.params;
+
+        const {
+            crop_name,
+            category,
+            description,
+            growing_period,
+            harvest_period,
+            soil_type,
+            water_requirement,
+            sunlight_requirement,
+            min_temperature,
+            max_temperature,
+            season,
+            environment
+        } = req.body;
+
+        // Validate required fields
+        if (
+            !crop_name ||
+            !category ||
+            !soil_type ||
+            !water_requirement ||
+            !sunlight_requirement ||
+            min_temperature === undefined ||
+            max_temperature === undefined ||
+            !season ||
+            !environment
+        ) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Please provide all required crop and requirement information."
+            });
+        }
+
+        // Check if crop exists
+        const [existingCrop] = await connection.query(
+            `
+            SELECT crop_id
+            FROM crops
+            WHERE crop_id = ?
+            `,
+            [id]
+        );
+
+        if (existingCrop.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Crop not found."
+            });
+        }
+
+        // Check for duplicate crop name
+        const [duplicateCrop] = await connection.query(
+            `
+            SELECT crop_id
+            FROM crops
+            WHERE crop_name = ?
+            AND crop_id != ?
+            `,
+            [
+                crop_name.trim(),
+                id
+            ]
+        );
+
+        if (duplicateCrop.length > 0) {
+            return res.status(409).json({
+                success: false,
+                message: "A crop with this name already exists."
+            });
+        }
+
+        await connection.beginTransaction();
+
+        // Update crop information
+        await connection.query(
+            `
+            UPDATE crops
+            SET
+                crop_name = ?,
+                category = ?,
+                description = ?,
+                growing_period = ?,
+                harvest_period = ?
+            WHERE crop_id = ?
+            `,
+            [
+                crop_name.trim(),
+                category.trim(),
+                description || null,
+                growing_period || null,
+                harvest_period || null,
+                id
+            ]
+        );
+
+        // Update crop requirements
+        await connection.query(
+            `
+            UPDATE crop_requirements
+            SET
+                soil_type = ?,
+                water_requirement = ?,
+                sunlight_requirement = ?,
+                min_temperature = ?,
+                max_temperature = ?,
+                season = ?,
+                environment = ?
+            WHERE crop_id = ?
+            `,
+            [
+                soil_type.trim(),
+                water_requirement.trim(),
+                sunlight_requirement.trim(),
+                min_temperature,
+                max_temperature,
+                season.trim(),
+                environment.trim(),
+                id
+            ]
+        );
+
+        await connection.commit();
+
+        res.json({
+            success: true,
+            message: "Crop updated successfully.",
+            crop_id: id
+        });
+
+    } catch (error) {
+        await connection.rollback();
+
+        console.error(
+            "Crop update error:",
+            error
+        );
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to update crop."
+        });
+
+    } finally {
+        connection.release();
+    }
+};
+
+const deleteCrop = async (req, res) => {
+    const connection = await pool.getConnection();
+
+    try {
+        const { id } = req.params;
+
+        // Check if crop exists
+        const [existingCrop] = await connection.query(
+            `
+            SELECT crop_id
+            FROM crops
+            WHERE crop_id = ?
+            `,
+            [id]
+        );
+
+        if (existingCrop.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Crop not found."
+            });
+        }
+
+        await connection.beginTransaction();
+
+        // Delete crop requirements first
+        await connection.query(
+            `
+            DELETE FROM crop_requirements
+            WHERE crop_id = ?
+            `,
+            [id]
+        );
+
+        // Delete crop
+        await connection.query(
+            `
+            DELETE FROM crops
+            WHERE crop_id = ?
+            `,
+            [id]
+        );
+
+        await connection.commit();
+
+        res.json({
+            success: true,
+            message: "Crop deleted successfully.",
+            crop_id: id
+        });
+
+    } catch (error) {
+        await connection.rollback();
+
+        console.error(
+            "Crop deletion error:",
+            error
+        );
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to delete crop."
+        });
+
+    } finally {
+        connection.release();
+    }
+};
 
 module.exports = {
     getAllCrops,
-    getCropById
+    getCropById,
+    createCrop,
+    updateCrop,
+    deleteCrop
 };

@@ -1,98 +1,134 @@
+
+const pool = require("../config/db");
+
 const API_KEY = process.env.OPENWEATHER_API_KEY;
 
 const BASE_URL = "https://api.openweathermap.org/data/2.5";
 
 
-const locationCoordinates = {
+/*
+|--------------------------------------------------------------------------
+| LOCATION COORDINATES
+|--------------------------------------------------------------------------
+|
+| Coordinates are now retrieved from MySQL instead of a hardcoded list.
+| This supports all Pangasinan locations with saved coordinates.
+|--------------------------------------------------------------------------
+*/
 
-    "Dagupan": {
-        lat: 16.0433,
-        lon: 120.3333
-    },
+async function getCoordinates(location) {
 
-    "Lingayen": {
-        lat: 16.0217,
-        lon: 120.2319
-    },
-
-    "Urdaneta": {
-        lat: 15.9761,
-        lon: 120.5711
-    },
-
-    "Santa Barbara": {
-        lat: 16.0000,
-        lon: 120.4000
-    },
-
-    "San Carlos": {
-        lat: 15.9280,
-        lon: 120.3480
+    if (!location) {
+        throw new Error("Location is required.");
     }
 
-};
+    // Handle names such as "Dagupan City" as "Dagupan".
+    const locationName = String(location)
+        .trim()
+        .replace(/\s+city$/i, "");
 
+    const [rows] = await pool.query(
+        `
+        SELECT
+            l.location_name,
+            lc.latitude,
+            lc.longitude
+        FROM locations l
+        INNER JOIN location_characteristics lc
+            ON l.location_id = lc.location_id
+        WHERE LOWER(TRIM(l.location_name)) = LOWER(?)
+          AND l.province = 'Pangasinan'
+        LIMIT 1
+        `,
+        [locationName]
+    );
 
-function getCoordinates(location) {
-
-    const coordinates =
-        locationCoordinates[location];
-
-    if (!coordinates) {
-
+    if (rows.length === 0) {
         throw new Error(
             `Weather coordinates not available for ${location}.`
         );
-
     }
 
-    return coordinates;
+    const lat = Number(rows[0].latitude);
+    const lon = Number(rows[0].longitude);
+
+    if (
+        !Number.isFinite(lat) ||
+        !Number.isFinite(lon) ||
+        lat < -90 ||
+        lat > 90 ||
+        lon < -180 ||
+        lon > 180
+    ) {
+        throw new Error(
+            `Invalid weather coordinates for ${location}.`
+        );
+    }
+
+    return {
+        lat,
+        lon,
+        location_name: rows[0].location_name
+    };
 }
 
 
-async function getCurrentWeather(location) {
+/*
+|--------------------------------------------------------------------------
+| WEATHER API REQUEST
+|--------------------------------------------------------------------------
+*/
+
+async function requestWeather(endpoint, lat, lon) {
 
     if (!API_KEY) {
-
         throw new Error(
             "OpenWeatherMap API key is not configured."
         );
-
     }
 
-    const { lat, lon } =
-        getCoordinates(location);
-
-
     const url =
-        `${BASE_URL}/weather` +
+        `${BASE_URL}/${endpoint}` +
         `?lat=${lat}` +
         `&lon=${lon}` +
         `&appid=${API_KEY}` +
         `&units=metric`;
 
+    const response = await fetch(url);
 
-    const response =
-        await fetch(url);
-
-
-    const data =
-        await response.json();
-
+    const data = await response.json();
 
     if (!response.ok) {
-
         throw new Error(
             data.message ||
-            "Failed to retrieve current weather."
+            "Failed to retrieve weather information."
         );
-
     }
 
+    return data;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| CURRENT WEATHER
+|--------------------------------------------------------------------------
+*/
+
+async function getCurrentWeather(location) {
+
+    const coordinates =
+        await getCoordinates(location);
+
+    const data = await requestWeather(
+        "weather",
+        coordinates.lat,
+        coordinates.lon
+    );
 
     return {
 
-        location,
+        location: coordinates.location_name,
 
         temperature:
             data.main?.temp ?? null,
@@ -127,49 +163,26 @@ async function getCurrentWeather(location) {
 }
 
 
+/*
+|--------------------------------------------------------------------------
+| WEATHER FORECAST
+|--------------------------------------------------------------------------
+*/
+
 async function getWeatherForecast(location) {
 
-    if (!API_KEY) {
+    const coordinates =
+        await getCoordinates(location);
 
-        throw new Error(
-            "OpenWeatherMap API key is not configured."
-        );
-
-    }
-
-    const { lat, lon } =
-        getCoordinates(location);
-
-
-    const url =
-        `${BASE_URL}/forecast` +
-        `?lat=${lat}` +
-        `&lon=${lon}` +
-        `&appid=${API_KEY}` +
-        `&units=metric`;
-
-
-    const response =
-        await fetch(url);
-
-
-    const data =
-        await response.json();
-
-
-    if (!response.ok) {
-
-        throw new Error(
-            data.message ||
-            "Failed to retrieve weather forecast."
-        );
-
-    }
-
+    const data = await requestWeather(
+        "forecast",
+        coordinates.lat,
+        coordinates.lon
+    );
 
     return {
 
-        location,
+        location: coordinates.location_name,
 
         forecast: data.list.map((item) => ({
 
@@ -205,7 +218,14 @@ async function getWeatherForecast(location) {
 }
 
 
+/*
+|--------------------------------------------------------------------------
+| EXPORT
+|--------------------------------------------------------------------------
+*/
+
 module.exports = {
     getCurrentWeather,
     getWeatherForecast
 };
+

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,9 +7,9 @@ import { useRouter } from "next/navigation";
 
 import {
     getPlantingPlans,
+    getPlantingPlanAdvisories,
     updatePlantingPlanStatus
 } from "../../services/plantingPlanService";
-
 
 const statusOptions = [
     "Planned",
@@ -17,22 +18,16 @@ const statusOptions = [
     "Completed"
 ];
 
-
 export default function MyPlantsPage() {
 
     const router = useRouter();
 
     const [user, setUser] = useState(null);
-
     const [plans, setPlans] = useState([]);
-
     const [loading, setLoading] = useState(true);
-
     const [error, setError] = useState("");
-
-    const [updatingPlanId, setUpdatingPlanId] =
-        useState(null);
-
+    const [advisoryLoadError, setAdvisoryLoadError] = useState("");
+    const [updatingPlanId, setUpdatingPlanId] = useState(null);
 
     useEffect(() => {
 
@@ -40,77 +35,101 @@ export default function MyPlantsPage() {
 
             try {
 
-                /*
-                    Get the currently logged-in user
-                    from localStorage.
-                */
-
-                const storedUser =
-                    localStorage.getItem(
-                        "buildAndBloomUser"
-                    );
-
-
-                /*
-                    If there is no logged-in user,
-                    redirect to login.
-                */
+                const storedUser = localStorage.getItem(
+                    "buildAndBloomUser"
+                );
 
                 if (!storedUser) {
-
                     router.push("/login");
-
                     return;
-
                 }
 
-
-                /*
-                    Convert stored JSON string
-                    into a JavaScript object.
-                */
-
-                const parsedUser =
-                    JSON.parse(storedUser);
-
-
-                /*
-                    Make sure the stored user
-                    has a valid user ID.
-                */
+                const parsedUser = JSON.parse(storedUser);
 
                 if (!parsedUser.user_id) {
-
                     setError(
                         "Unable to identify your account. Please log in again."
                     );
-
                     setLoading(false);
-
                     return;
-
                 }
-
 
                 setUser(parsedUser);
 
+                // Retrieve all planting plans first.
+                const planData = await getPlantingPlans(
+                    parsedUser.user_id
+                );
 
-                /*
-                    Get only the planting plans
-                    belonging to this user.
-                */
+                const allPlans = Array.isArray(planData)
+                    ? planData
+                    : [];
 
-                const data =
-                    await getPlantingPlans(
-                        parsedUser.user_id
+                // Retrieve advisories separately so that a weather
+                // service problem does not hide the user's plant plans.
+                try {
+
+                    const advisoryResponse =
+                        await getPlantingPlanAdvisories(
+                            parsedUser.user_id
+                        );
+
+                    const advisoryPlans = Array.isArray(advisoryResponse)
+                        ? advisoryResponse
+                        : advisoryResponse?.data || [];
+
+                    // Match advisories to their corresponding plans.
+                    const advisoryMap = new Map(
+                        advisoryPlans.map((item) => [
+                            item.plan_id,
+                            item
+                        ])
                     );
 
+                    const mergedPlans = allPlans.map((plan) => {
 
-                setPlans(
-                    Array.isArray(data)
-                        ? data
-                        : []
-                );
+                        const advisoryData = advisoryMap.get(
+                            plan.plan_id
+                        );
+
+                        return {
+                            ...plan,
+                            current_weather:
+                                advisoryData?.current_weather || null,
+                            advisories:
+                                advisoryData?.advisories || [],
+                            advisory_error:
+                                advisoryData?.advisory_error || null,
+                            advisory_message:
+                                advisoryData?.advisory_message || null
+                        };
+
+                    });
+
+                    setPlans(mergedPlans);
+
+                } catch (advisoryError) {
+
+                    console.error(
+                        "Unable to load crop advisories:",
+                        advisoryError
+                    );
+
+                    setAdvisoryLoadError(
+                        "Weather-based advisories are currently unavailable. Your planting plans are still accessible."
+                    );
+
+                    setPlans(
+                        allPlans.map((plan) => ({
+                            ...plan,
+                            current_weather: null,
+                            advisories: [],
+                            advisory_error:
+                                "Unable to retrieve weather advisories."
+                        }))
+                    );
+
+                }
 
             } catch (err) {
 
@@ -129,7 +148,6 @@ export default function MyPlantsPage() {
 
         }
 
-
         loadPlans();
 
     }, [router]);
@@ -139,34 +157,22 @@ export default function MyPlantsPage() {
         UPDATE PLANTING PLAN STATUS
     */
 
-    async function handleStatusChange(
-        planId,
-        newStatus
-    ) {
+    async function handleStatusChange(planId, newStatus) {
 
         if (!user?.user_id) {
             return;
         }
 
-
         try {
 
             setUpdatingPlanId(planId);
-
             setError("");
-
 
             await updatePlantingPlanStatus(
                 planId,
                 user.user_id,
                 newStatus
             );
-
-
-            /*
-                Update the status locally
-                after the database update succeeds.
-            */
 
             setPlans((currentPlans) =>
                 currentPlans.map((plan) =>
@@ -196,6 +202,35 @@ export default function MyPlantsPage() {
 
     }
 
+
+    /*
+        ADVISORY PRIORITY CLASS
+    */
+
+    function getPriorityClass(priority) {
+
+        switch (priority?.toLowerCase()) {
+
+            case "high":
+                return "advisory-priority-high";
+
+            case "warning":
+                return "advisory-priority-warning";
+
+            case "info":
+                return "advisory-priority-info";
+
+            default:
+                return "advisory-priority-default";
+
+        }
+
+    }
+
+
+    /*
+        LOADING STATE
+    */
 
     if (loading) {
 
@@ -228,7 +263,6 @@ export default function MyPlantsPage() {
 
             <div className="plants-container">
 
-
                 {/* HEADER */}
 
                 <div className="plants-header">
@@ -236,7 +270,7 @@ export default function MyPlantsPage() {
                     <div>
 
                         <span className="section-badge">
-                             Build & Bloom
+                            Build & Bloom
                         </span>
 
                         <h1>
@@ -251,7 +285,6 @@ export default function MyPlantsPage() {
 
                     </div>
 
-
                     <Link
                         href="/crops"
                         className="create-plant-button"
@@ -262,20 +295,16 @@ export default function MyPlantsPage() {
                 </div>
 
 
-                {/* ERROR */}
+                {/* GENERAL ERROR */}
 
                 {error && (
 
                     <div className="assessment-error">
 
-                        <span>
-                            ️
-                        </span>
-
                         <div>
 
                             <strong>
-                                Unable to update plans
+                                Unable to load or update plans
                             </strong>
 
                             <p>
@@ -289,6 +318,25 @@ export default function MyPlantsPage() {
                 )}
 
 
+                {/* ADVISORY LOADING ERROR */}
+
+                {advisoryLoadError && (
+
+                    <div className="advisory-load-error">
+
+                        <strong>
+                            Weather Advisory Notice
+                        </strong>
+
+                        <p>
+                            {advisoryLoadError}
+                        </p>
+
+                    </div>
+
+                )}
+
+
                 {/* EMPTY STATE */}
 
                 {!error && plans.length === 0 && (
@@ -296,7 +344,6 @@ export default function MyPlantsPage() {
                     <div className="plants-empty">
 
                         <div className="plants-empty-icon">
-                            
                         </div>
 
                         <h2>
@@ -312,7 +359,7 @@ export default function MyPlantsPage() {
                             href="/crops"
                             className="assessment-submit"
                         >
-                            Explore Crops →
+                            Explore Crops
                         </Link>
 
                     </div>
@@ -320,7 +367,7 @@ export default function MyPlantsPage() {
                 )}
 
 
-                {/* PLANS */}
+                {/* PLANTING PLANS */}
 
                 {plans.length > 0 && (
 
@@ -333,13 +380,11 @@ export default function MyPlantsPage() {
                                 key={plan.plan_id}
                             >
 
-
                                 {/* CARD HEADER */}
 
                                 <div className="plant-plan-top">
 
                                     <div className="plant-plan-icon">
-                                        
                                     </div>
 
                                     <div>
@@ -368,14 +413,14 @@ export default function MyPlantsPage() {
                                 </div>
 
 
-                                {/* DETAILS */}
+                                {/* PLANT DETAILS */}
 
                                 <div className="plant-plan-details">
 
                                     <div>
 
                                         <span>
-                                             Location
+                                            Location
                                         </span>
 
                                         <strong>
@@ -385,11 +430,10 @@ export default function MyPlantsPage() {
 
                                     </div>
 
-
                                     <div>
 
                                         <span>
-                                             Planting Date
+                                            Planting Date
                                         </span>
 
                                         <strong>
@@ -409,11 +453,10 @@ export default function MyPlantsPage() {
 
                                     </div>
 
-
                                     <div>
 
                                         <span>
-                                             Growing Method
+                                            Growing Method
                                         </span>
 
                                         <strong>
@@ -423,11 +466,10 @@ export default function MyPlantsPage() {
 
                                     </div>
 
-
                                     <div>
 
                                         <span>
-                                             Quantity
+                                            Quantity
                                         </span>
 
                                         <strong>
@@ -436,6 +478,166 @@ export default function MyPlantsPage() {
                                         </strong>
 
                                     </div>
+
+                                </div>
+
+
+                                {/* CURRENT WEATHER */}
+
+                                {plan.current_weather && (
+
+                                    <div className="plant-weather-section">
+
+                                        <h3>
+                                            Current Weather
+                                        </h3>
+
+                                        <div className="plant-weather-grid">
+
+                                            <div>
+                                                <span>
+                                                    Temperature
+                                                </span>
+
+                                                <strong>
+                                                    {Number(
+                                                        plan.current_weather.temperature
+                                                    ).toFixed(1)}°C
+                                                </strong>
+                                            </div>
+
+                                            <div>
+                                                <span>
+                                                    Humidity
+                                                </span>
+
+                                                <strong>
+                                                    {plan.current_weather.humidity}%
+                                                </strong>
+                                            </div>
+
+                                            <div>
+                                                <span>
+                                                    Condition
+                                                </span>
+
+                                                <strong>
+                                                    {plan.current_weather.weather_description ||
+                                                        plan.current_weather.weather_condition}
+                                                </strong>
+                                            </div>
+
+                                            <div>
+                                                <span>
+                                                    Rainfall
+                                                </span>
+
+                                                <strong>
+                                                    {plan.current_weather.rainfall} mm
+                                                </strong>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                )}
+
+
+                                {/* CROP-SPECIFIC ADVISORIES */}
+
+                                <div className="plant-advisory-section">
+
+                                    <div className="plant-advisory-heading">
+
+                                        <div>
+
+                                            <span>
+                                                SMART PLANT CARE
+                                            </span>
+
+                                            <h3>
+                                                Crop Care Advisories
+                                            </h3>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    {plan.advisory_message && (
+
+                                        <div className="plant-advisory-empty">
+                                            {plan.advisory_message}
+                                        </div>
+
+                                    )}
+
+
+                                    {plan.advisory_error && (
+
+                                        <div className="plant-advisory-empty">
+                                            {plan.advisory_error}
+                                        </div>
+
+                                    )}
+
+
+                                    {!plan.advisory_message &&
+                                        !plan.advisory_error &&
+                                        plan.advisories?.length === 0 && (
+
+                                        <div className="plant-advisory-empty">
+
+                                            {["Harvested", "Completed"].includes(
+                                                plan.status
+                                            )
+                                                ? "This planting plan is completed. Weather-based advisories are no longer generated."
+                                                : "No crop-specific advisories are currently available."}
+
+                                        </div>
+
+                                    )}
+
+
+                                    {plan.advisories?.length > 0 && (
+
+                                        <div className="plant-advisory-list">
+
+                                            {plan.advisories.map(
+                                                (advisory, index) => (
+
+                                                    <div
+                                                        className={`plant-advisory-card ${getPriorityClass(
+                                                            advisory.priority
+                                                        )}`}
+                                                        key={`${plan.plan_id}-${advisory.type}-${index}`}
+                                                    >
+
+                                                        <div className="plant-advisory-card-header">
+
+                                                            <strong>
+                                                                {advisory.title}
+                                                            </strong>
+
+                                                            <span className="plant-advisory-priority">
+                                                                {advisory.priority}
+                                                            </span>
+
+                                                        </div>
+
+                                                        <p>
+                                                            {advisory.message}
+                                                        </p>
+
+                                                    </div>
+
+                                                )
+                                            )}
+
+                                        </div>
+
+                                    )}
 
                                 </div>
 
@@ -508,22 +710,17 @@ export default function MyPlantsPage() {
                                             "Planned"
                                         )
                                             .toLowerCase()
-                                            .replaceAll(
-                                                " ",
-                                                "-"
-                                            )}`}
+                                            .replaceAll(" ", "-")}`}
                                     >
                                         {plan.status ||
                                             "Planned"}
                                     </span>
-
 
                                     <span className="plant-plan-id">
                                         Plan #{plan.plan_id}
                                     </span>
 
                                 </div>
-
 
                             </article>
 

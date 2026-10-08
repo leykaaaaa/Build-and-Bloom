@@ -83,15 +83,22 @@ export default function LoginPage() {
             */
 
             localStorage.setItem(
-                "buildAndBloomUser",
-                JSON.stringify(
-                    result.user
-                )
-            );
+    "buildAndBloomUser",
+    JSON.stringify(result.user)
+);
+
+localStorage.setItem(
+    "buildAndBloomToken",
+    result.token
+);
 
 
             
-                window.location.href = "/dashboard";
+                if (result.user.role === "admin") {
+    window.location.href = "/admin";
+} else {
+    window.location.href = "/dashboard";
+}
 
         } catch (err) {
 

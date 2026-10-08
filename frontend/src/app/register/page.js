@@ -218,7 +218,7 @@ export default function RegisterPage() {
                             href="/login"
                             className="auth-success-link"
                         >
-                            Go to Login →
+                            Go to Login
                         </Link>
 
                     </div>

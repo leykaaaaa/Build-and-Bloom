@@ -1,6 +1,6 @@
 const pool = require("../config/db");
 const bcrypt = require("bcryptjs");
-
+const jwt = require("jsonwebtoken");
 
 /*
     REGISTER
@@ -155,13 +155,14 @@ const loginUser = async (req, res) => {
         const [users] = await pool.query(
             `
             SELECT
-                user_id,
-                full_name,
-                email,
-                password,
-                location_id
-            FROM users
-            WHERE email = ?
+    user_id,
+    full_name,
+    email,
+    password,
+    role,
+    location_id
+FROM users
+WHERE email = ?
             `,
             [email]
         );
@@ -204,31 +205,48 @@ const loginUser = async (req, res) => {
             });
 
         }
+        
+        const token = jwt.sign(
+    {
+        user_id: user.user_id,
+        email: user.email,
+        role: user.role
+    },
+    process.env.JWT_SECRET,
+    {
+        expiresIn: "2h"
+    }
+);
 
 
         // Do NOT send password to frontend
         res.json({
 
-            success: true,
+    success: true,
 
-            message:
-                "Login successful.",
+    message:
+        "Login successful.",
 
-            user: {
+    token,
 
-                user_id:
-                    user.user_id,
+    user: {
 
-                full_name:
-                    user.full_name,
+    user_id:
+        user.user_id,
 
-                email:
-                    user.email,
+    full_name:
+        user.full_name,
 
-                location_id:
-                    user.location_id
+    email:
+        user.email,
 
-            }
+    role:
+        user.role,
+
+    location_id:
+        user.location_id
+
+}
 
         });
 
@@ -255,7 +273,53 @@ const loginUser = async (req, res) => {
 };
 
 
+/*
+    GET ALL USERS
+*/
+const getAllUsers = async (req, res) => {
+
+    try {
+
+        const [users] = await pool.query(
+            `
+            SELECT
+                u.user_id,
+                u.full_name,
+                u.email,
+                u.location_id,
+                l.location_name,
+                u.created_at
+            FROM users u
+            LEFT JOIN locations l
+                ON u.location_id = l.location_id
+            ORDER BY u.created_at DESC
+            `
+        );
+
+        res.json({
+            success: true,
+            count: users.length,
+            data: users
+        });
+
+    } catch (error) {
+
+        console.error(
+            "User retrieval error:",
+            error
+        );
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to retrieve users."
+        });
+
+    }
+
+};
+
 module.exports = {
     registerUser,
-    loginUser
+    loginUser,
+    getAllUsers
 };

@@ -313,7 +313,7 @@ export default function DashboardPage() {
                             </div>
 
                             <Link href="/plants">
-                                View All →
+                                View All
                             </Link>
 
                         </div>
@@ -554,7 +554,7 @@ export default function DashboardPage() {
                         href="/assessment"
                         className="dashboard-cta-button"
                     >
-                        Start Assessment →
+                        Start Assessment 
                     </Link>
 
                 </div>

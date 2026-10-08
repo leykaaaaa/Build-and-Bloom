@@ -412,7 +412,7 @@ export default function CropDetailsPage() {
                                 href={`/assessment?crop=${crop.crop_id}`}
                                 className="assessment-button"
                             >
-                                Can I Grow This? →
+                                Can I Grow This?
                             </Link>
 
 
@@ -420,7 +420,7 @@ export default function CropDetailsPage() {
                                 href={`/plants/plan?crop=${crop.crop_id}`}
                                 className="plan-recommendation"
                             >
-                                Plan This Plant →
+                                Plan This Plant 
                             </Link>
 
                         </div>

@@ -1,26 +1,27 @@
+"use client";
+
 import "./globals.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-
-export const metadata = {
-  title: "Build & Bloom",
-  description:
-    "Plant Management Decision Support System in Pangasinan",
-};
+import { usePathname } from "next/navigation";
 
 export default function RootLayout({ children }) {
+  const pathname = usePathname();
+
+  const isAdminPage =
+    pathname === "/admin" ||
+    pathname.startsWith("/admin/");
+
   return (
     <html lang="en">
       <body>
-
-        <Navbar />
+        {!isAdminPage && <Navbar />}
 
         <main>
           {children}
         </main>
 
-        <Footer />
-
+        {!isAdminPage && <Footer />}
       </body>
     </html>
   );

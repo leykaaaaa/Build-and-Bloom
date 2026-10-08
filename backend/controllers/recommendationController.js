@@ -403,12 +403,264 @@ function weatherScore(
     return 10;
 }
 
+/*
+|-------------------------------------------------------------------------- 
+| FLOOD COMPATIBILITY SCORE
+|-------------------------------------------------------------------------- 
+*/
+
+function floodCompatibilityScore(floodRisk, cropTolerance) {
+    if (!floodRisk || !cropTolerance) {
+        return 50;
+    }
+
+    const risk = normalize(floodRisk);
+    const tolerance = normalize(cropTolerance);
+
+    const isRice =
+        tolerance.includes("managed flooding") ||
+        tolerance.includes("variety-dependent");
+
+    const isLowToModerate =
+        tolerance.includes("low to moderate");
+
+    if (risk.includes("low")) {
+        return 100;
+    }
+
+    if (risk.includes("moderate")) {
+        if (isRice) return 70;
+        if (isLowToModerate) return 75;
+        if (tolerance === "low") return 60;
+        return 50;
+    }
+
+    if (risk.includes("high")) {
+        if (isRice) return 50;
+        if (isLowToModerate) return 40;
+        if (tolerance === "low") return 20;
+        return 50;
+    }
+
+    return 50;
+}
+
+
+/*
+|-------------------------------------------------------------------------- 
+| DRAINAGE COMPATIBILITY SCORE
+|-------------------------------------------------------------------------- 
+*/
+
+function drainageCompatibilityScore(
+    drainageCondition,
+    cropDrainageRequirement
+) {
+    if (!drainageCondition || !cropDrainageRequirement) {
+        return 50;
+    }
+
+    const condition = normalize(drainageCondition);
+    const requirement = normalize(cropDrainageRequirement);
+
+    const isRice =
+        requirement.includes("controlled water retention");
+
+    /*
+     * Rice needs managed water conditions.
+     * This does not mean uncontrolled flooding is suitable.
+     */
+
+    if (isRice) {
+        if (
+            condition.includes("moderate")
+        ) {
+            return 80;
+        }
+
+        if (
+            condition.includes("poor") ||
+            condition.includes("low")
+        ) {
+            return 60;
+        }
+
+        if (
+            condition.includes("good") ||
+            condition.includes("well-drained") ||
+            condition.includes("high")
+        ) {
+            return 60;
+        }
+
+        return 50;
+    }
+
+    /*
+     * Other crops in the current dataset
+     * require well-drained conditions.
+     */
+
+    if (
+        requirement.includes("well-drained")
+    ) {
+        if (
+            condition.includes("good") ||
+            condition.includes("well-drained") ||
+            condition.includes("high")
+        ) {
+            return 100;
+        }
+
+        if (
+            condition.includes("moderate")
+        ) {
+            return 70;
+        }
+
+        if (
+            condition.includes("poor") ||
+            condition.includes("low") ||
+            condition.includes("waterlogged")
+        ) {
+            return 20;
+        }
+    }
+
+    return 50;
+}
+
+
+/*
+|-------------------------------------------------------------------------- 
+| LOCATION SUITABILITY SCORE
+|-------------------------------------------------------------------------- 
+*/
+
+function locationSuitabilityScore(
+    floodRisk,
+    drainageCondition,
+    cropFloodTolerance,
+    cropDrainageRequirement
+) {
+    const floodFactor = floodCompatibilityScore(
+        floodRisk,
+        cropFloodTolerance
+    );
+
+    const drainageFactor = drainageCompatibilityScore(
+        drainageCondition,
+        cropDrainageRequirement
+    );
+
+    const score =
+        (floodFactor * 0.50) +
+        (drainageFactor * 0.50);
+
+    return {
+        flood: floodFactor,
+        drainage: drainageFactor,
+        overall: score
+    };
+}
 
 /*
 |--------------------------------------------------------------------------
 | COMPATIBILITY LEVEL
 |--------------------------------------------------------------------------
 */
+
+function getLocationRiskLevel(floodRisk, drainageCondition) {
+    const flood = normalize(floodRisk);
+    const drainage = normalize(drainageCondition);
+
+    // Incomplete location information
+    if (!flood || !drainage) {
+        return {
+            level: "Unknown",
+            message: "Location risk information is incomplete. Verify the local flood and drainage conditions before planting."
+        };
+    }
+
+    // High flood risk
+    if (flood.includes("high")) {
+        return {
+            level: "High",
+            message: "High location risk: This area has recorded flooding concerns. Take appropriate protective measures before planting."
+        };
+    }
+
+    // Moderate flood risk or drainage
+    if (
+        flood.includes("moderate") ||
+        drainage.includes("poor") ||
+        drainage.includes("low") ||
+        drainage.includes("waterlogged")
+    ) {
+        return {
+            level: "Moderate",
+            message: "Moderate location risk: Consider the local flooding and drainage conditions when planning your crops."
+        };
+    }
+
+    // Low flood risk and favorable drainage
+    if (
+        flood.includes("low") &&
+        (
+            drainage.includes("good") ||
+            drainage.includes("well-drained") ||
+            drainage.includes("high")
+        )
+    ) {
+        return {
+            level: "Low",
+            message: "Low recorded location risk based on the available flood and drainage classifications."
+        };
+    }
+
+    return {
+        level: "Unknown",
+        message: "Location risk could not be fully determined from the available classifications."
+    };
+}
+
+
+function getCropLocationRisk(
+    floodRisk,
+    drainageCondition,
+    floodFactor,
+    drainageFactor
+) {
+    // Incomplete location information
+    if (!floodRisk || !drainageCondition) {
+        return {
+            level: "Unknown",
+            message: "Crop-specific location risk cannot be fully determined because some location information is unavailable."
+        };
+    }
+
+    // High crop-specific caution
+    if (floodFactor <= 40 || drainageFactor <= 40) {
+        return {
+            level: "High",
+            message: "High planting caution: The recorded flood or drainage conditions may significantly affect this crop. Consider protective measures before planting."
+        };
+    }
+
+    // Moderate crop-specific caution
+    if (floodFactor < 80 || drainageFactor < 80) {
+        return {
+            level: "Moderate",
+            message: "Moderate planting caution: Some recorded location conditions may limit this crop's suitability. Monitor the area and consider appropriate adjustments."
+        };
+    }
+
+    // Low crop-specific caution
+    return {
+        level: "Low",
+        message: "Low crop-specific location caution based on the available flood and drainage compatibility scores."
+    };
+}
 
 function getCompatibilityLevel(score) {
 
@@ -437,138 +689,180 @@ function generateExplanation({
     sunlightFactor,
     environmentFactor,
     weatherFactor,
+    seasonFactor,
+    floodFactor,
+    drainageFactor,
+    locationSuitabilityFactor,
+    plantingMonth,
+    currentSeason,
     weather
 }) {
 
+    // Always declare reasons before using reasons.push()
     const reasons = [];
 
-
     /*
-     * SOIL
-     */
+    |--------------------------------------------------------------------------
+    | SOIL
+    |--------------------------------------------------------------------------
+    */
 
     if (soilFactor >= 80) {
-
         reasons.push(
             `The soil condition matches the preferred soil type for ${crop.crop_name}.`
         );
-
     } else {
-
         reasons.push(
             `The selected soil condition does not closely match the preferred soil type for ${crop.crop_name}.`
         );
-
     }
 
-
     /*
-     * WATER
-     */
+    |--------------------------------------------------------------------------
+    | WATER
+    |--------------------------------------------------------------------------
+    */
 
     if (waterFactor >= 80) {
-
         reasons.push(
             "The available water level is suitable for this crop."
         );
-
     } else if (waterFactor >= 60) {
-
         reasons.push(
             "The available water level is moderately compatible with this crop."
         );
-
     } else {
-
         reasons.push(
             "The water availability may not fully meet this crop's requirements."
         );
-
     }
 
-
     /*
-     * SUNLIGHT
-     */
+    |--------------------------------------------------------------------------
+    | SUNLIGHT
+    |--------------------------------------------------------------------------
+    */
 
     if (sunlightFactor >= 80) {
-
         reasons.push(
             "The available sunlight is appropriate for this crop."
         );
-
     } else if (sunlightFactor >= 60) {
-
         reasons.push(
             "The available sunlight is moderately compatible with this crop."
         );
-
     } else {
-
         reasons.push(
             "The available sunlight may not fully satisfy this crop's requirements."
         );
-
     }
 
-
     /*
-     * ENVIRONMENT
-     */
+    |--------------------------------------------------------------------------
+    | ENVIRONMENT
+    |--------------------------------------------------------------------------
+    */
 
     if (environmentFactor >= 80) {
-
         reasons.push(
             "The selected growing environment is compatible with this crop."
         );
-
     } else {
-
         reasons.push(
             "The selected growing environment does not closely match the preferred environment for this crop."
         );
-
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | PLANTING SEASON
+    |--------------------------------------------------------------------------
+    */
+
+    if (seasonFactor >= 80) {
+        reasons.push(
+            `The selected planting month of ${plantingMonth} falls under ${currentSeason}, which is compatible with this crop's preferred season.`
+        );
+    } else if (seasonFactor <= 40) {
+        reasons.push(
+            `The selected planting month of ${plantingMonth} falls under ${currentSeason}, which does not match this crop's preferred season (${crop.season}).`
+        );
+    } else {
+        reasons.push(
+            "Seasonal compatibility could not be fully determined from the available crop requirements."
+        );
+    }
 
     /*
-     * WEATHER
-     */
+    |--------------------------------------------------------------------------
+    | WEATHER
+    |--------------------------------------------------------------------------
+    */
 
-    if (weather) {
-
-        const temperature =
-            Number(weather.temperature);
-
+    if (
+        weather &&
+        weather.temperature !== null &&
+        weather.temperature !== undefined &&
+        !Number.isNaN(Number(weather.temperature))
+    ) {
+        const temperature = Number(weather.temperature);
 
         if (weatherFactor >= 80) {
-
             reasons.push(
                 `The current temperature of ${temperature.toFixed(1)}°C is within the preferred temperature range of ${crop.min_temperature}°C–${crop.max_temperature}°C.`
             );
-
         } else if (weatherFactor >= 60) {
-
             reasons.push(
                 `The current temperature of ${temperature.toFixed(1)}°C is slightly outside the preferred range of ${crop.min_temperature}°C–${crop.max_temperature}°C.`
             );
-
         } else {
-
             reasons.push(
                 `The current temperature of ${temperature.toFixed(1)}°C is outside the preferred range of ${crop.min_temperature}°C–${crop.max_temperature}°C.`
             );
-
         }
-
     } else {
-
         reasons.push(
             "Current weather information was unavailable during the assessment."
         );
-
     }
 
+ // Flood compatibility explanation
+if (floodFactor === 50) {
+    reasons.push(
+        "The crop has a neutral flood compatibility score under the current location and crop classification rules."
+    );
+} else if (floodFactor >= 80) {
+    reasons.push(
+        "The recorded flood-risk level is relatively compatible with this crop's flood tolerance."
+    );
+} else if (floodFactor >= 60) {
+    reasons.push(
+        "The recorded flood-risk level presents some limitations for this crop."
+    );
+} else {
+    reasons.push(
+        "The recorded flood-risk level may pose a concern for this crop because of its flood tolerance."
+    );
+}
+
+// Drainage compatibility explanation
+if (drainageFactor === 50) {
+    reasons.push(
+        "Drainage compatibility could not be fully assessed because location or crop drainage information is incomplete."
+    );
+} else if (drainageFactor >= 80) {
+    reasons.push(
+        "The recorded drainage condition is compatible with this crop's drainage requirement."
+    );
+} else if (drainageFactor >= 60) {
+    reasons.push(
+        "The recorded drainage condition is moderately compatible with this crop's drainage requirement."
+    );
+} else {
+    reasons.push(
+        "The recorded drainage condition may not meet this crop's drainage requirement."
+    );
+}
 
     return reasons.join(" ");
 }
@@ -584,35 +878,38 @@ async function assessCrops(req, res) {
 
     try {
 
-        const {
-            location,
-            soil,
-            water,
-            sunlight,
-            environment,
-            crop_id,
-            user_id
-        } = req.body;
+   const {
+    location,
+    soil,
+    water,
+    sunlight,
+    environment,
+    planting_month,
+    crop_id,
+    user_id
+} = req.body;
 
 
         /*
          * VALIDATE REQUIRED ASSESSMENT DATA
          */
 
-        if (
-            !location ||
-            !soil ||
-            !water ||
-            !sunlight ||
-            !environment
-        ) {
+       if (
+    !location ||
+    !soil ||
+    !water ||
+    !sunlight ||
+    !environment ||
+    !planting_month
+) {
+
 
             return res.status(400).json({
 
                 success: false,
 
                 message:
-                    "Location, soil, water, sunlight, and environment are required."
+                    "Location, soil, water, sunlight, environment, and planting month are required."
 
             });
 
@@ -654,32 +951,85 @@ async function assessCrops(req, res) {
         }
 
 
-        /*
-         * GET LOCATION ID ONCE
-         */
+    
 
-        let locationId = null;
+       
+/*
+|--------------------------------------------------------------------------
+| GET LOCATION INFORMATION
+|--------------------------------------------------------------------------
+*/
 
-
-        const [
-            locationRows
-        ] = await pool.query(
-            `
-            SELECT location_id
-            FROM locations
-            WHERE LOWER(location_name) = LOWER(?)
-            LIMIT 1
-            `,
-            [location]
-        );
+const normalizedLocation = String(location)
+    .trim()
+    .replace(/\s+city$/i, "");
 
 
-        if (locationRows.length > 0) {
+const [locationRows] = await pool.query(
+    `
+    SELECT
+        l.location_id,
+        l.location_name,
+        l.location_type,
+        l.province,
+        lc.latitude,
+        lc.longitude,
+        lc.soil_information,
+        lc.climate,
+        lc.flooding_drainage,
+        lc.flood_risk_level,
+        lc.drainage_condition,
+        lc.notes
+    FROM locations l
+    LEFT JOIN location_characteristics lc
+        ON l.location_id = lc.location_id
+    WHERE LOWER(TRIM(l.location_name)) = LOWER(?)
+      AND l.province = 'Pangasinan'
+    LIMIT 1
+    `,
+    [normalizedLocation]
+);
 
-            locationId =
-                locationRows[0].location_id;
+const selectedLocation = locationRows[0];
 
-        }
+const locationWarnings = [];
+
+if (normalize(selectedLocation.flood_risk_level) === "high") {
+    locationWarnings.push(
+        "High flood risk: This location has recorded flooding concerns. Consider proper drainage, raised planting beds, or other suitable protective measures before planting."
+    );
+}
+
+const locationRisk = getLocationRiskLevel(
+    selectedLocation.flood_risk_level,
+    selectedLocation.drainage_condition
+);
+
+const locationId = selectedLocation.location_id;
+
+const locationDetails = {
+    location_id: selectedLocation.location_id,
+    location_name: selectedLocation.location_name,
+    location_type: selectedLocation.location_type,
+    province: selectedLocation.province,
+    latitude: selectedLocation.latitude,
+    longitude: selectedLocation.longitude,
+    soil_information: selectedLocation.soil_information,
+    climate: selectedLocation.climate,
+    flooding_drainage: selectedLocation.flooding_drainage,
+    flood_risk_level: selectedLocation.flood_risk_level,
+    drainage_condition: selectedLocation.drainage_condition,
+
+      risk_level: locationRisk.level,
+risk_message: locationRisk.message,
+
+    notes: selectedLocation.notes,
+    warnings: locationWarnings
+  
+    
+};
+
+
 
 
         /*
@@ -719,28 +1069,31 @@ async function assessCrops(req, res) {
          * GET CROPS
          */
 
-        let query = `
-            SELECT
-                c.crop_id,
-                c.crop_name,
-                c.category,
-                c.description,
-                c.growing_period,
-                c.harvest_period,
+        
+let query = `
+    SELECT
+        c.crop_id,
+        c.crop_name,
+        c.category,
+        c.description,
+        c.growing_period,
+        c.harvest_period,
 
-                cr.soil_type,
-                cr.water_requirement,
-                cr.sunlight_requirement,
-                cr.min_temperature,
-                cr.max_temperature,
-                cr.season,
-                cr.environment
+        cr.soil_type,
+        cr.water_requirement,
+        cr.sunlight_requirement,
+        cr.min_temperature,
+        cr.max_temperature,
+        cr.season,
+        cr.environment,
+        cr.flood_tolerance,
+        cr.drainage_requirement
 
-            FROM crops c
+    FROM crops c
 
-            LEFT JOIN crop_requirements cr
-                ON c.crop_id = cr.crop_id
-        `;
+    LEFT JOIN crop_requirements cr
+        ON c.crop_id = cr.crop_id
+`;
 
 
         const queryParams = [];
@@ -865,24 +1218,69 @@ async function assessCrops(req, res) {
                         currentWeather,
                         crop
                     );
+/*
+ * PLANTING SEASON
+ */
 
+const currentSeason =
+    getSeasonFromMonth(planting_month);
 
-                /*
-                 * WEIGHTED SCORE
-                 *
-                 * Soil       = 25%
-                 * Water      = 20%
-                 * Sunlight   = 20%
-                 * Environment= 15%
-                 * Weather    = 20%
-                 */
+const seasonFactor =
+    seasonScore(
+        planting_month,
+        crop.season
+    );
 
-                const score =
-                    (soilFactor * 0.25) +
-                    (waterFactor * 0.20) +
-                    (sunlightFactor * 0.20) +
-                    (environmentFactor * 0.15) +
-                    (weatherFactor * 0.20);
+    
+/*
+|-------------------------------------------------------------------------- 
+| LOCATION SUITABILITY
+|-------------------------------------------------------------------------- 
+*/
+
+const locationScore = locationSuitabilityScore(
+    selectedLocation.flood_risk_level,
+    selectedLocation.drainage_condition,
+    crop.flood_tolerance,
+    crop.drainage_requirement
+);
+
+const floodFactor = locationScore.flood;
+const drainageFactor = locationScore.drainage;
+const locationSuitabilityFactor = locationScore.overall;
+
+const cropLocationRisk = getCropLocationRisk(
+    selectedLocation.flood_risk_level,
+    selectedLocation.drainage_condition,
+    floodFactor,
+    drainageFactor
+);
+      
+/*
+|-------------------------------------------------------------------------- 
+| FINAL WEIGHTED COMPATIBILITY SCORE
+|-------------------------------------------------------------------------- 
+|
+| Soil                  = 18.75%
+| Water                 = 15%
+| Sunlight              = 15%
+| Environment           = 11.25%
+| Weather               = 15%
+| Planting Season       = 10%
+| Location Suitability  = 15%
+|
+| Total                 = 100%
+|-------------------------------------------------------------------------- 
+*/
+
+const score =
+    (soilFactor * 0.1875) +
+    (waterFactor * 0.15) +
+    (sunlightFactor * 0.15) +
+    (environmentFactor * 0.1125) +
+    (weatherFactor * 0.15) +
+    (seasonFactor * 0.10) +
+    (locationSuitabilityFactor * 0.15);
 
 
                 const roundedScore =
@@ -895,37 +1293,42 @@ async function assessCrops(req, res) {
                     );
 
 
-                const explanation =
-                    generateExplanation({
+               const explanation = generateExplanation({
 
-                        crop,
+        crop,
 
-                        soilFactor,
+        soilFactor,
 
-                        waterFactor,
+        waterFactor,
 
-                        sunlightFactor,
+        sunlightFactor,
 
-                        environmentFactor,
+        environmentFactor,
 
-                        weatherFactor,
+        weatherFactor,
 
-                        weather:
-                            currentWeather
+        seasonFactor,
+            floodFactor,
+    drainageFactor,
+    locationSuitabilityFactor,
 
-                    });
+        plantingMonth: planting_month,
+
+        currentSeason,
+
+        weather:
+            currentWeather
+
+    });
 
 
                 return {
 
-                    crop_id:
-                        crop.crop_id,
+                    crop_id: crop.crop_id,
 
-                    crop_name:
-                        crop.crop_name,
+                    crop_name: crop.crop_name,
 
-                    category:
-                        crop.category,
+                    category: crop.category,
 
                     description:
                         crop.description,
@@ -936,26 +1339,37 @@ async function assessCrops(req, res) {
                     compatibility_level:
                         compatibilityLevel,
 
+                        crop_location_risk: cropLocationRisk.level,
+crop_location_risk_message: cropLocationRisk.message,
+
                     factors: {
 
-                        soil:
-                            soilFactor,
+    soil: soilFactor,
 
-                        water:
-                            waterFactor,
+    water: waterFactor,
 
-                        sunlight:
-                            sunlightFactor,
+    sunlight: sunlightFactor,
 
-                        environment:
-                            environmentFactor,
+    environment: environmentFactor,
 
-                        weather:
-                            weatherFactor
+    weather: weatherFactor,
 
-                    },
+    season: seasonFactor,
+    
+    flood: floodFactor,
 
-                    explanation
+    drainage: drainageFactor,
+     
+    location_suitability: locationSuitabilityFactor
+
+},
+
+planting_month: planting_month,
+
+planting_season: currentSeason,
+
+                    explanation,
+                    location_warnings: locationWarnings,
 
                 };
 
@@ -1072,35 +1486,32 @@ async function assessCrops(req, res) {
          * your current assessment/page.js.
          */
 
-        res.json({
+res.json({
 
-            success: true,
+    success: true,
 
-            message:
-                "Crop assessment completed successfully.",
+    message:
+        "Crop assessment completed successfully.",
 
-            assessment: {
+    assessment: {
+    location: selectedLocation.location_name,
+    soil,
+    water,
+    sunlight,
+    environment,
+    planting_month
+},
 
-                location,
+    locationDetails,
 
-                soil,
+    currentWeather,
 
-                water,
+    forecast:
+        weatherForecast,
 
-                sunlight,
+    recommendations
 
-                environment
-
-            },
-
-            currentWeather,
-
-            forecast:
-                weatherForecast,
-
-            recommendations
-
-        });
+});
 
 
     } catch (error) {
@@ -1127,6 +1538,151 @@ async function assessCrops(req, res) {
 
 }
 
+/*
+|--------------------------------------------------------------------------
+| PLANTING SEASON
+|--------------------------------------------------------------------------
+|
+| General Philippine seasonal classification based on PAGASA:
+| Cool and Dry: December - February
+| Hot and Dry: March - May
+| Wet: June - November
+|--------------------------------------------------------------------------
+*/
+
+function getSeasonFromMonth(month) {
+    const monthNumber = {
+        January: 1,
+        February: 2,
+        March: 3,
+        April: 4,
+        May: 5,
+        June: 6,
+        July: 7,
+        August: 8,
+        September: 9,
+        October: 10,
+        November: 11,
+        December: 12
+    }[month];
+
+    if (!monthNumber) {
+        return null;
+    }
+
+    if ([12, 1, 2].includes(monthNumber)) {
+        return "Cool and Dry Season";
+    }
+
+    if ([3, 4, 5].includes(monthNumber)) {
+        return "Hot and Dry Season";
+    }
+
+    return "Wet Season";
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| SEASONAL COMPATIBILITY SCORE
+|--------------------------------------------------------------------------
+*/
+
+function seasonScore(plantingMonth, cropSeason) {
+    if (!plantingMonth || !cropSeason) {
+        return 50;
+    }
+
+    const currentSeason =
+        getSeasonFromMonth(plantingMonth);
+
+    if (!currentSeason) {
+        return 50;
+    }
+
+    const requirement = normalize(cropSeason);
+
+    // Crops that can grow during both wet and dry seasons.
+    if (requirement.includes("wet and dry")) {
+        return 100;
+    }
+
+    // Crops that specifically require cool and dry conditions.
+    if (requirement.includes("cool and dry")) {
+        return currentSeason === "Cool and Dry Season"
+            ? 100
+            : 40;
+    }
+
+    // General dry-season crops include both cool and hot dry months.
+    if (requirement.includes("dry season")) {
+        return currentSeason.includes("Dry")
+            ? 100
+            : 40;
+    }
+
+    // Crops specifically requiring wet-season conditions.
+    if (
+        requirement.includes("wet season") ||
+        requirement === "wet"
+    ) {
+        return currentSeason === "Wet Season"
+            ? 100
+            : 40;
+    }
+
+    return 50;
+}
+
+const getRecommendationHistory = async (req, res) => {
+    try {
+        const [recommendations] = await pool.query(`
+            SELECT
+                r.recommendation_id,
+                r.user_id,
+                u.full_name,
+                r.crop_id,
+                c.crop_name,
+                c.category,
+                r.location_id,
+                l.location_name,
+                r.compatibility_score,
+                r.compatibility_level,
+                r.explanation,
+                r.assessment_soil,
+                r.assessment_water,
+                r.assessment_sunlight,
+                r.assessment_environment,
+                r.created_at
+            FROM recommendations r
+            LEFT JOIN users u
+                ON r.user_id = u.user_id
+            INNER JOIN crops c
+                ON r.crop_id = c.crop_id
+            LEFT JOIN locations l
+                ON r.location_id = l.location_id
+            ORDER BY r.created_at DESC
+        `);
+
+        res.json({
+            success: true,
+            count: recommendations.length,
+            data: recommendations
+        });
+
+    } catch (error) {
+        console.error(
+            "Recommendation history retrieval error:",
+            error
+        );
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to retrieve recommendation history."
+        });
+    }
+};
+
 
 /*
 |--------------------------------------------------------------------------
@@ -1135,5 +1691,6 @@ async function assessCrops(req, res) {
 */
 
 module.exports = {
-    assessCrops
+    assessCrops,
+    getRecommendationHistory
 };

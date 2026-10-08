@@ -1,5 +1,210 @@
 const pool = require("../config/db");
+const {
+    getCurrentWeather,
+    getWeatherForecast
+} = require("../services/weatherService");
 
+const {
+    generateCropAdvisories
+} = require("../services/cropAdvisoryService");
+
+
+
+/*
+|--------------------------------------------------------------------------
+| GET CROP-SPECIFIC PLANTING PLAN ADVISORIES
+|--------------------------------------------------------------------------
+*/
+
+const getPlantingPlanAdvisories = async (req, res) => {
+
+    try {
+
+        const { user_id } = req.params;
+
+        if (!user_id) {
+            return res.status(400).json({
+                success: false,
+                message: "User ID is required."
+            });
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | GET USER'S PLANTING PLANS AND CROP REQUIREMENTS
+        |--------------------------------------------------------------------------
+        */
+
+        const [plans] = await pool.query(
+            `
+            SELECT
+                pp.plan_id,
+                pp.plan_name,
+                pp.planting_date,
+                pp.quantity,
+                pp.growing_method,
+                pp.status,
+
+                c.crop_id,
+                c.crop_name,
+                c.category,
+
+                cr.soil_type,
+                cr.water_requirement,
+                cr.sunlight_requirement,
+                cr.min_temperature,
+                cr.max_temperature,
+
+                l.location_id,
+                l.location_name
+
+            FROM planting_plans pp
+
+            INNER JOIN crops c
+                ON pp.crop_id = c.crop_id
+
+            LEFT JOIN crop_requirements cr
+                ON c.crop_id = cr.crop_id
+
+            LEFT JOIN locations l
+                ON pp.location_id = l.location_id
+
+            WHERE pp.user_id = ?
+
+            AND pp.status IN ('Planned', 'Growing')
+
+            ORDER BY pp.created_at DESC
+            `,
+            [user_id]
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | GENERATE ADVISORIES FOR EACH PLANTING PLAN
+        |--------------------------------------------------------------------------
+        */
+
+        const results = await Promise.all(
+
+            plans.map(async (plan) => {
+
+                // No location means weather advisories cannot be generated.
+                if (!plan.location_name) {
+
+                    return {
+                        ...plan,
+                        advisories: [],
+                        advisory_message:
+                            "Please specify a planting location to receive weather-based care advisories."
+                    };
+
+                }
+
+                try {
+
+                    const [
+                        currentWeather,
+                        forecastResult
+                    ] = await Promise.all([
+
+                        getCurrentWeather(
+                            plan.location_name
+                        ),
+
+                        getWeatherForecast(
+                            plan.location_name
+                        )
+
+                    ]);
+
+                    const advisories =
+                        generateCropAdvisories(
+                            {
+                                crop_id: plan.crop_id,
+                                crop_name: plan.crop_name
+                            },
+                            {
+                                soil_type: plan.soil_type,
+                                water_requirement: plan.water_requirement,
+                                sunlight_requirement: plan.sunlight_requirement,
+                                min_temperature: plan.min_temperature,
+                                max_temperature: plan.max_temperature
+                            },
+                            currentWeather,
+                            forecastResult.forecast || []
+                        );
+
+                    return {
+
+                        ...plan,
+
+                        current_weather: currentWeather,
+
+                        advisories,
+
+                        advisory_error: null
+
+                    };
+
+                } catch (weatherError) {
+
+                    console.error(
+                        `Advisory error for plan ${plan.plan_id}:`,
+                        weatherError
+                    );
+
+                    return {
+
+                        ...plan,
+
+                        advisories: [],
+
+                        advisory_error:
+                            "Weather information is currently unavailable for this planting plan."
+
+                    };
+
+                }
+
+            })
+
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESPONSE
+        |--------------------------------------------------------------------------
+        */
+
+        res.json({
+
+            success: true,
+
+            count: results.length,
+
+            data: results
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Get planting plan advisories error:",
+            error
+        );
+
+        res.status(500).json({
+
+            success: false,
+
+            message:
+                "Failed to retrieve planting plan advisories."
+
+        });
+
+    }
+
+};
 
 /*
     Create a planting plan
@@ -94,6 +299,8 @@ const createPlantingPlan = async (req, res) => {
     }
 
 };
+
+
 
 
 /*
@@ -275,5 +482,6 @@ const updatePlantingPlanStatus = async (req, res) => {
 module.exports = {
     createPlantingPlan,
     getPlantingPlans,
-    updatePlantingPlanStatus
+    updatePlantingPlanStatus,
+    getPlantingPlanAdvisories
 };
