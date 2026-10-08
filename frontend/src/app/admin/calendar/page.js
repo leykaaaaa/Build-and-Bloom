@@ -270,6 +270,18 @@ export default function PlantingCalendarManagement() {
 
                     <button
     onClick={() => {
+        setEditingSchedule(null);
+
+        setFormData({
+            crop_id: "",
+            location_id: "",
+            planting_month: "",
+            season: "",
+            growing_period: "",
+            harvest_period: "",
+            notes: ""
+        });
+
         setFormError("");
         setShowAddForm(true);
     }}
@@ -290,19 +302,34 @@ export default function PlantingCalendarManagement() {
                 {showAddForm && (
     <div
         style={{
-            background: "white",
-            borderRadius: "12px",
-            border: "1px solid #e5e7eb",
-            padding: "25px",
-            marginBottom: "25px",
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0, 0, 0, 0.45)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+            zIndex: 1000,
         }}
     >
+        <div
+            style={{
+                width: "100%",
+                maxWidth: "850px",
+                maxHeight: "90vh",
+                overflowY: "auto",
+                background: "white",
+                borderRadius: "14px",
+                boxShadow: "0 20px 50px rgba(0, 0, 0, 0.2)",
+            }}
+        >
         <div
             style={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: "20px",
+                padding: "22px 25px",
+                borderBottom: "1px solid #e5e7eb",
             }}
         >
             <div>
@@ -313,7 +340,9 @@ export default function PlantingCalendarManagement() {
                         color: "#1f2937",
                     }}
                 >
-                    Add Planting Schedule
+                    {editingSchedule
+                        ? "Edit Planting Schedule"
+                        : "Add Planting Schedule"}
                 </h2>
 
                 <p
@@ -324,8 +353,9 @@ export default function PlantingCalendarManagement() {
                         fontSize: "14px",
                     }}
                 >
-                    Add planting schedule information for a
-                    crop and Pangasinan location.
+                    {editingSchedule
+                        ? "Update the planting schedule information."
+                        : "Add planting schedule information for a crop and Pangasinan location."}
                 </p>
             </div>
 
@@ -337,19 +367,28 @@ export default function PlantingCalendarManagement() {
                     setFormError("");
                 }}
                 style={{
+                    width: "36px",
+                    height: "36px",
+                    border: "none",
+                    borderRadius: "8px",
                     background: "#f3f4f6",
                     color: "#374151",
-                    border: "none",
-                    padding: "8px 12px",
-                    borderRadius: "6px",
+                    fontSize: "22px",
                     cursor: "pointer",
-                    fontWeight: "600",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                 }}
             >
-                Cancel
+                ×
             </button>
         </div>
 
+        <div
+            style={{
+                padding: "25px",
+            }}
+        >
         {formError && (
             <div
                 style={{
@@ -555,6 +594,8 @@ export default function PlantingCalendarManagement() {
                     justifyContent: "flex-end",
                     gap: "10px",
                     marginTop: "22px",
+                    paddingTop: "20px",
+                    borderTop: "1px solid #e5e7eb",
                 }}
             >
                 <button
@@ -596,10 +637,14 @@ export default function PlantingCalendarManagement() {
                 >
                     {saving
                         ? "Saving..."
+                        : editingSchedule
+                        ? "Update Schedule"
                         : "Save Schedule"}
                 </button>
             </div>
         </form>
+        </div>
+        </div>
     </div>
 )}
 

@@ -240,9 +240,27 @@ const handleDeleteCrop = async (crop) => {
                         </p>
                     </div>
 <button
+    type="button"
     onClick={() => {
-        setShowAddForm(true);
+        setEditingCrop(null);
         setFormError("");
+
+        setFormData({
+            crop_name: "",
+            category: "",
+            description: "",
+            growing_period: "",
+            harvest_period: "",
+            soil_type: "",
+            water_requirement: "",
+            sunlight_requirement: "",
+            min_temperature: "",
+            max_temperature: "",
+            season: "",
+            environment: ""
+        });
+
+        setShowAddForm(true);
     }}
     style={{
         background: "#166534",
@@ -259,23 +277,42 @@ const handleDeleteCrop = async (crop) => {
                 </div>
 
 
-                {/* Add Crop Form */}
+                {/* Add / Edit Crop Modal */}
 {showAddForm && (
     <div
         style={{
-            background: "white",
-            borderRadius: "12px",
-            padding: "25px",
-            marginBottom: "25px",
-            border: "1px solid #e5e7eb",
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0, 0, 0, 0.45)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+            zIndex: 1000,
+            boxSizing: "border-box",
         }}
     >
+        <div
+            style={{
+                width: "100%",
+                maxWidth: "850px",
+                maxHeight: "90vh",
+                background: "white",
+                borderRadius: "14px",
+                boxShadow: "0 20px 50px rgba(0, 0, 0, 0.2)",
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden",
+            }}
+        >
         <div
             style={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: "20px",
+                padding: "20px 25px",
+                borderBottom: "1px solid #e5e7eb",
+                flexShrink: 0,
             }}
         >
             <div>
@@ -286,8 +323,7 @@ const handleDeleteCrop = async (crop) => {
                         color: "#1f2937",
                     }}
                 >
-                        {editingCrop ? "Edit Crop" : "Add New Crop"}
-
+                    {editingCrop ? "Edit Crop" : "Add New Crop"}
                 </h2>
 
                 <p
@@ -298,7 +334,9 @@ const handleDeleteCrop = async (crop) => {
                         fontSize: "14px",
                     }}
                 >
-                    Add the crop information and its agricultural requirements.
+                    {editingCrop
+                        ? "Update the crop information and agricultural requirements."
+                        : "Add the crop information and its agricultural requirements."}
                 </p>
             </div>
 
@@ -306,21 +344,33 @@ const handleDeleteCrop = async (crop) => {
                 type="button"
                 onClick={() => {
                     setShowAddForm(false);
+                    setEditingCrop(null);
                     setFormError("");
                 }}
                 style={{
+                    width: "36px",
+                    height: "36px",
+                    border: "none",
+                    borderRadius: "8px",
                     background: "#f3f4f6",
                     color: "#374151",
-                    border: "none",
-                    padding: "8px 12px",
-                    borderRadius: "6px",
+                    fontSize: "20px",
                     cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                 }}
             >
-                Cancel
+                ×
             </button>
         </div>
 
+        <div
+            style={{
+                padding: "25px",
+                overflowY: "auto",
+            }}
+        >
         {formError && (
             <div
                 style={{
@@ -587,31 +637,63 @@ const handleDeleteCrop = async (crop) => {
             </div>
         </div>
 
-        {/* Save Button */}
+        </div>
+
+        {/* Modal Footer */}
         <div
             style={{
                 display: "flex",
                 justifyContent: "flex-end",
-                marginTop: "25px",
+                gap: "10px",
+                padding: "18px 25px",
+                borderTop: "1px solid #e5e7eb",
+                background: "#fafafa",
+                flexShrink: 0,
             }}
         >
             <button
-    type="button"
-    onClick={handleSaveCrop}
-    disabled={saving}
-    style={{
-        background: saving ? "#9ca3af" : "#166534",
-        color: "white",
-        border: "none",
-        padding: "12px 20px",
-        borderRadius: "8px",
-        cursor: saving ? "not-allowed" : "pointer",
-        fontWeight: "600",
-    }}
->
-    {editingCrop ? "Update Crop" : "Save Crop"}
+                type="button"
+                onClick={() => {
+                    setShowAddForm(false);
+                    setEditingCrop(null);
+                    setFormError("");
+                }}
+                disabled={saving}
+                style={{
+                    background: "#f3f4f6",
+                    color: "#374151",
+                    border: "none",
+                    padding: "11px 18px",
+                    borderRadius: "8px",
+                    cursor: saving ? "not-allowed" : "pointer",
+                    fontWeight: "600",
+                }}
+            >
+                Cancel
+            </button>
 
-</button>
+            <button
+                type="button"
+                onClick={handleSaveCrop}
+                disabled={saving}
+                style={{
+                    background: saving ? "#9ca3af" : "#166534",
+                    color: "white",
+                    border: "none",
+                    padding: "11px 20px",
+                    borderRadius: "8px",
+                    cursor: saving ? "not-allowed" : "pointer",
+                    fontWeight: "600",
+                }}
+            >
+                {saving
+                    ? "Saving..."
+                    : editingCrop
+                    ? "Update Crop"
+                    : "Save Crop"}
+            </button>
+        </div>
+
         </div>
     </div>
 )}

@@ -12,11 +12,11 @@ export default function RecommendationsPage() {
     const fetchRecommendations = async () => {
       try {
         const response = await fetch(
-  "http://localhost:5000/api/recommendations/history",
-  {
-    headers: getAuthHeaders()
-  }
-);
+          "http://localhost:5000/api/recommendations/history",
+          {
+            headers: getAuthHeaders()
+          }
+        );
 
         const result = await response.json();
         console.log("Recommendation API response:", result);
