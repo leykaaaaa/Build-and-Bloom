@@ -116,9 +116,13 @@ export default function PlantingCalendarManagement() {
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/planting-calendar",
+                editingSchedule
+                    ? `http://localhost:5000/api/planting-calendar/${editingSchedule.calendar_id}`
+                    : "http://localhost:5000/api/planting-calendar",
                 {
-                    method: "POST",
+                    method: editingSchedule
+                        ? "PUT"
+                        : "POST",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${localStorage.getItem(
@@ -162,7 +166,7 @@ export default function PlantingCalendarManagement() {
                 !calendarResult.success
             ) {
                 throw new Error(
-                    "Schedule was created, but the calendar could not be refreshed."
+                    `Schedule was ${editingSchedule ? "updated" : "created"}, but the calendar could not be refreshed.`
                 );
             }
 
@@ -180,20 +184,23 @@ export default function PlantingCalendarManagement() {
             });
 
             setShowAddForm(false);
+            setEditingSchedule(null);
 
             alert(
-                "Planting schedule added successfully."
+                editingSchedule
+                    ? "Planting schedule updated successfully."
+                    : "Planting schedule added successfully."
             );
 
         } catch (error) {
             console.error(
-                "Failed to add planting schedule:",
+                "Failed to save planting schedule:",
                 error
             );
 
             setFormError(
                 error.message ||
-                    "Failed to create planting schedule."
+                    `Failed to ${editingSchedule ? "update" : "create"} planting schedule.`
             );
 
         } finally {
@@ -326,6 +333,7 @@ export default function PlantingCalendarManagement() {
                 type="button"
                 onClick={() => {
                     setShowAddForm(false);
+                    setEditingSchedule(null);
                     setFormError("");
                 }}
                 style={{
@@ -553,6 +561,7 @@ export default function PlantingCalendarManagement() {
                     type="button"
                     onClick={() => {
                         setShowAddForm(false);
+                        setEditingSchedule(null);
                         setFormError("");
                     }}
                     style={{
