@@ -5209,3 +5209,95 @@ textarea {
         padding: 18px;
     }
 }
+
+    /* Registration Success Popup */
+    .register-modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(20, 35, 25, 0.55);
+        backdrop-filter: blur(4px);
+    }
+
+    .register-modal {
+        width: 100%;
+        max-width: 440px;
+        padding: 36px 28px;
+        border-radius: 20px;
+        background: #ffffff;
+        color: #26382b;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        animation: registerModalAppear 0.25s ease-out;
+    }
+
+    .register-modal-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 68px;
+        height: 68px;
+        margin: 0 auto 20px;
+        border-radius: 50%;
+        background: #e5f5e9;
+        color: #27834a;
+        font-size: 38px;
+        font-weight: 700;
+    }
+
+    .register-modal h2 {
+        margin: 0 0 14px;
+        font-size: 24px;
+        line-height: 1.35;
+    }
+
+    .register-modal p {
+        margin: 0 0 26px;
+        color: #647067;
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .register-modal-button {
+        display: block;
+        width: 100%;
+        padding: 14px 20px;
+        border-radius: 10px;
+        background: #34794a;
+        color: #ffffff;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        transition: background 0.2s ease;
+    }
+
+    .register-modal-button:hover {
+        background: #28623a;
+    }
+
+    .register-modal-button:focus-visible {
+        outline: 3px solid #8bc99c;
+        outline-offset: 3px;
+    }
+
+    @keyframes registerModalAppear {
+        from {
+            opacity: 0;
+            transform: translateY(12px) scale(0.98);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .register-modal {
+            animation: none;
+        }
+    }

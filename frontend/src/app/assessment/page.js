@@ -34,6 +34,8 @@ const [locationsError, setLocationsError] = useState("");
 
     const [results, setResults] = useState([]);
 
+    const [locationDetails, setLocationDetails] = useState(null);
+
     const [currentWeather, setCurrentWeather] =
         useState(null);
 
@@ -207,6 +209,7 @@ useEffect(() => {
 
         setCurrentWeather(null);
 
+        setLocationDetails(null);
 
         try {
 
@@ -254,6 +257,9 @@ const result = await assessCrops({
                 result.currentWeather || null
             );
 
+            setLocationDetails(
+                result.locationDetails || null
+            );
 
             setSubmitted(true);
 
@@ -724,6 +730,44 @@ const result = await assessCrops({
 
                         {/* CURRENT WEATHER SUMMARY */}
 
+                        {/* LOCATION RISK SUMMARY */}
+
+                        {locationDetails && (
+                            <div className="location-risk-summary">
+                                <h3>Location Risk Assessment</h3>
+
+                                <p>
+                                    <strong>Location:</strong>{" "}
+                                    {locationDetails.location_name || form.location}
+                                </p>
+
+                                <p>
+                                    <strong>Overall Risk Level:</strong>{" "}
+                                    {locationDetails.risk_level || "Unknown"}
+                                </p>
+
+                                <p>
+                                    {locationDetails.risk_message ||
+                                        "Location risk information is unavailable."}
+                                </p>
+
+                                {Array.isArray(locationDetails.warnings) &&
+                                    locationDetails.warnings.length > 0 && (
+                                        <div>
+                                            <strong>Location Warnings</strong>
+
+                                            <ul>
+                                                {locationDetails.warnings.map(
+                                                    (warning, index) => (
+                                                        <li key={index}>{warning}</li>
+                                                    )
+                                                )}
+                                            </ul>
+                                        </div>
+                                    )}
+                            </div>
+                        )}
+
                         {currentWeather && (
 
                             <div className="assessment-weather-summary">
@@ -930,6 +974,20 @@ const result = await assessCrops({
                                 </div>
 
 
+
+                                        {/* CROP-SPECIFIC LOCATION RISK */}
+
+                                        <div className="crop-location-risk">
+                                            <strong>
+                                                Crop-Specific Location Caution:{" "}
+                                                {crop.crop_location_risk || "Unknown"}
+                                            </strong>
+
+                                            <p>
+                                                {crop.crop_location_risk_message ||
+                                                    "Crop-specific location risk information is unavailable."}
+                                            </p>
+                                        </div>
 
 
 

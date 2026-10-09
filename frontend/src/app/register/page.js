@@ -198,31 +198,42 @@ export default function RegisterPage() {
                 </div>
 
 
-                {/* SUCCESS */}
-
+                {/* SUCCESS POPUP */}
                 {success && (
-
-                    <div className="auth-success">
-
-                        <strong>
-                            Account created successfully!
-                        </strong>
-
-                        <p>
-                            Your Build & Bloom account
-                            has been created. You can
-                            now log in.
-                        </p>
-
-                        <Link
-                            href="/login"
-                            className="auth-success-link"
+                    <div
+                        className="register-modal-overlay"
+                        role="presentation"
+                    >
+                        <div
+                            className="register-modal"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="register-success-title"
+                            aria-describedby="register-success-description"
                         >
-                            Go to Login
-                        </Link>
+                            <div className="register-modal-icon">
+                                ✓
+                            </div>
 
+                            <h2 id="register-success-title">
+                                Account Created Successfully!
+                            </h2>
+
+                            <p id="register-success-description">
+                                Your Build & Bloom account has been
+                                registered successfully. Please proceed
+                                to the login page to sign in using your
+                                newly created account.
+                            </p>
+
+                            <Link
+                                href="/login"
+                                className="register-modal-button"
+                            >
+                                Proceed to Login
+                            </Link>
+                        </div>
                     </div>
-
                 )}
 
 

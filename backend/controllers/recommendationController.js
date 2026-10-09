@@ -574,53 +574,80 @@ function getLocationRiskLevel(floodRisk, drainageCondition) {
     const flood = normalize(floodRisk);
     const drainage = normalize(drainageCondition);
 
-    // Incomplete location information
-    if (!flood || !drainage) {
+    const missingFlood = !flood;
+    const missingDrainage = !drainage;
+
+    // Both fields are missing
+    if (missingFlood && missingDrainage) {
         return {
             level: "Unknown",
-            message: "Location risk information is incomplete. Verify the local flood and drainage conditions before planting."
+            message:
+                "Location risk information is incomplete. Both flood-risk and drainage classifications are unavailable. Verify local conditions before planting."
         };
     }
 
-    // High flood risk
+    // A known high flood risk should not be hidden by missing drainage data
     if (flood.includes("high")) {
         return {
             level: "High",
-            message: "High location risk: This area has recorded flooding concerns. Take appropriate protective measures before planting."
+            message: missingDrainage
+                ? "High location risk: The recorded flood-risk classification is High, but drainage information is unavailable. Take appropriate protective measures and verify local drainage conditions before planting."
+                : "High location risk: This area has a recorded high flood-risk classification. Take appropriate protective measures before planting."
         };
     }
 
-    // Moderate flood risk or drainage
-    if (
-        flood.includes("moderate") ||
+    // Determine risk from the available flood and drainage information
+    const moderateFlood =
+        flood.includes("moderate");
+
+    const lowFlood =
+        flood.includes("low");
+
+    const concerningDrainage =
         drainage.includes("poor") ||
         drainage.includes("low") ||
-        drainage.includes("waterlogged")
-    ) {
+        drainage.includes("waterlogged");
+
+    const favorableDrainage =
+        drainage.includes("good") ||
+        drainage.includes("well-drained") ||
+        drainage.includes("well drained") ||
+        drainage.includes("high");
+
+    // Moderate risk from either known factor
+    if (moderateFlood || concerningDrainage) {
         return {
             level: "Moderate",
-            message: "Moderate location risk: Consider the local flooding and drainage conditions when planning your crops."
+            message: missingDrainage
+                ? "Moderate location risk: The recorded flood-risk classification is Moderate, but drainage information is unavailable. Verify local drainage conditions before planting."
+                : missingFlood
+                    ? "Moderate location risk: The available drainage classification indicates potential concerns, but flood-risk information is unavailable. Verify local flooding conditions before planting."
+                    : "Moderate location risk: Consider the recorded flooding and drainage conditions when planning your crops."
         };
     }
 
-    // Low flood risk and favorable drainage
-    if (
-        flood.includes("low") &&
-        (
-            drainage.includes("good") ||
-            drainage.includes("well-drained") ||
-            drainage.includes("high")
-        )
-    ) {
+    // Low risk requires both known flood risk and favorable drainage
+    if (lowFlood && favorableDrainage) {
         return {
             level: "Low",
-            message: "Low recorded location risk based on the available flood and drainage classifications."
+            message:
+                "Low recorded location risk based on the available flood and drainage classifications."
+        };
+    }
+
+    // One known factor is not enough to conclude that risk is low
+    if (missingFlood || missingDrainage) {
+        return {
+            level: "Unknown",
+            message:
+                "Location risk information is incomplete. Some risk information is available, but the missing flood-risk or drainage classification prevents a more complete assessment."
         };
     }
 
     return {
         level: "Unknown",
-        message: "Location risk could not be fully determined from the available classifications."
+        message:
+            "Location risk could not be fully determined from the available classifications. Verify local flood and drainage conditions before planting."
     };
 }
 
@@ -631,35 +658,86 @@ function getCropLocationRisk(
     floodFactor,
     drainageFactor
 ) {
-    // Incomplete location information
-    if (!floodRisk || !drainageCondition) {
+    const flood = normalize(floodRisk);
+    const drainage = normalize(drainageCondition);
+
+    const missingFlood = !flood;
+    const missingDrainage = !drainage;
+
+    const missingFloodScore =
+        floodFactor === null ||
+        floodFactor === undefined ||
+        !Number.isFinite(Number(floodFactor));
+
+    const missingDrainageScore =
+        drainageFactor === null ||
+        drainageFactor === undefined ||
+        !Number.isFinite(Number(drainageFactor));
+
+    const floodScoreAvailable = !missingFloodScore;
+    const drainageScoreAvailable = !missingDrainageScore;
+
+    // No usable location information or compatibility scores
+    if (
+        (missingFlood && missingDrainage) ||
+        (!floodScoreAvailable && !drainageScoreAvailable)
+    ) {
         return {
             level: "Unknown",
-            message: "Crop-specific location risk cannot be fully determined because some location information is unavailable."
+            message:
+                "Crop-specific location risk cannot be determined because usable flood-risk, drainage, or compatibility-score information is unavailable."
         };
     }
 
-    // High crop-specific caution
-    if (floodFactor <= 40 || drainageFactor <= 40) {
-        return {
-            level: "High",
-            message: "High planting caution: The recorded flood or drainage conditions may significantly affect this crop. Consider protective measures before planting."
-        };
+    const highCaution =
+        (floodScoreAvailable && Number(floodFactor) <= 40) ||
+        (drainageScoreAvailable && Number(drainageFactor) <= 40) ||
+        flood.includes("high");
+
+    const moderateCaution =
+        (floodScoreAvailable && Number(floodFactor) < 80) ||
+        (drainageScoreAvailable && Number(drainageFactor) < 80) ||
+        flood.includes("moderate") ||
+        drainage.includes("poor") ||
+        drainage.includes("low") ||
+        drainage.includes("waterlogged");
+
+    let level;
+    let message;
+
+    if (highCaution) {
+        level = "High";
+        message =
+            "High planting caution: The available flood-risk information or compatibility scores indicate significant potential limitations for this crop. Consider protective measures before planting.";
+    } else if (moderateCaution) {
+        level = "Moderate";
+        message =
+            "Moderate planting caution: The available location information indicates potential limitations for this crop. Monitor the area and consider appropriate adjustments.";
+    } else {
+        level = "Low";
+        message =
+            "Low crop-specific location caution based on the available flood-risk information and compatibility scores. This does not guarantee that the planting area is safe from flooding.";
     }
 
-    // Moderate crop-specific caution
-    if (floodFactor < 80 || drainageFactor < 80) {
-        return {
-            level: "Moderate",
-            message: "Moderate planting caution: Some recorded location conditions may limit this crop's suitability. Monitor the area and consider appropriate adjustments."
-        };
+    // Report missing information without discarding the available assessment
+    if (missingFlood || missingDrainage) {
+        const missingFields = [];
+
+        if (missingFlood) {
+            missingFields.push("flood-risk classification");
+        }
+
+        if (missingDrainage) {
+            missingFields.push("drainage condition");
+        }
+
+        message +=
+            " Note: The " +
+            missingFields.join(" and ") +
+            " is unavailable, so this assessment is incomplete.";
     }
 
-    // Low crop-specific caution
-    return {
-        level: "Low",
-        message: "Low crop-specific location caution based on the available flood and drainage compatibility scores."
-    };
+    return { level, message };
 }
 
 function getCompatibilityLevel(score) {
