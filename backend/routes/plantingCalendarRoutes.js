@@ -4,6 +4,8 @@ const {
     getPlantingCalendar,
     getPlantingCalendarByLocation,
     createPlantingCalendar,
+    updatePlantingCalendarSchedules,
+    deletePlantingCalendarSchedules,
     updatePlantingCalendar,
     deletePlantingCalendar
 } = require("../controllers/plantingCalendarController");
@@ -17,7 +19,7 @@ const router = express.Router();
 
 
 // GET ALL PLANTING CALENDAR ENTRIES
-// Optional: ?location_id=1
+// Optional: ?location_id=1 (general schedules are included)
 
 router.get(
     "/",
@@ -25,7 +27,7 @@ router.get(
 );
 
 
-// GET PLANTING CALENDAR BY LOCATION NAME
+// GET LOCATION-SPECIFIC AND GENERAL PLANTING SCHEDULES BY LOCATION NAME
 // Example: /location/Santa%20Barbara
 
 router.get(
@@ -43,8 +45,15 @@ router.post(
     createPlantingCalendar
 );
 
-// UPDATE PLANTING CALENDAR ENTRY
+// UPDATE GROUPED PLANTING CALENDAR ENTRIES
 // Admin only
+router.put(
+    "/bulk",
+    verifyToken,
+    verifyAdmin,
+    updatePlantingCalendarSchedules
+);
+
 router.put(
     "/:id",
     verifyToken,
@@ -54,6 +63,13 @@ router.put(
 
 // DELETE PLANTING CALENDAR ENTRY
 // Admin only
+router.delete(
+    "/bulk",
+    verifyToken,
+    verifyAdmin,
+    deletePlantingCalendarSchedules
+);
+
 router.delete(
     "/:id",
     verifyToken,

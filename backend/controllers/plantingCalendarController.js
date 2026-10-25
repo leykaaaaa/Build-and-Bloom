@@ -24,7 +24,7 @@ const getPlantingCalendar = async (req, res) => {
             FROM planting_calendar pc
             INNER JOIN crops c
                 ON pc.crop_id = c.crop_id
-            INNER JOIN locations l
+            LEFT JOIN locations l
                 ON pc.location_id = l.location_id
         `;
 
@@ -35,7 +35,8 @@ const getPlantingCalendar = async (req, res) => {
         if (location_id) {
 
             query += `
-                WHERE pc.location_id = ?
+                WHERE pc.location_id IS NULL
+                    OR pc.location_id = ?
             `;
 
             params.push(location_id);
@@ -46,8 +47,11 @@ const getPlantingCalendar = async (req, res) => {
         // ORDER RESULTS
         query += `
             ORDER BY
-                l.location_name ASC,
-                c.crop_name ASC
+                CASE WHEN pc.location_id IS NULL THEN 0 ELSE 1 END,
+                c.crop_name ASC,
+                pc.season ASC,
+                pc.planting_month ASC,
+                l.location_name ASC
         `;
 
 
@@ -104,10 +108,11 @@ const getPlantingCalendarByLocation = async (req, res) => {
             FROM planting_calendar pc
             INNER JOIN crops c
                 ON pc.crop_id = c.crop_id
-            INNER JOIN locations l
+            LEFT JOIN locations l
                 ON pc.location_id = l.location_id
-            WHERE l.location_name = ?
-            ORDER BY c.crop_name ASC
+            WHERE pc.location_id IS NULL
+                OR l.location_name = ?
+            ORDER BY c.crop_name ASC, pc.season ASC, pc.planting_month ASC
             `,
             [location]
         );
@@ -149,12 +154,10 @@ const createPlantingCalendar = async (req, res) => {
             notes
         } = req.body;
 
-        // VALIDATE REQUIRED FIELDS
-        if (!crop_id || !location_id) {
+        if (!crop_id) {
             return res.status(400).json({
                 success: false,
-                message:
-                    "Crop and location are required."
+                message: "Crop is required."
             });
         }
 
@@ -175,21 +178,22 @@ const createPlantingCalendar = async (req, res) => {
             });
         }
 
-        // CHECK IF LOCATION EXISTS
-        const [location] = await connection.query(
-            `
-            SELECT location_id
-            FROM locations
-            WHERE location_id = ?
-            `,
-            [location_id]
-        );
+        if (location_id != null && location_id !== "") {
+            const [location] = await connection.query(
+                `
+                SELECT location_id
+                FROM locations
+                WHERE location_id = ?
+                `,
+                [location_id]
+            );
 
-        if (location.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Location not found."
-            });
+            if (location.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Location not found."
+                });
+            }
         }
 
         // START TRANSACTION
@@ -211,7 +215,7 @@ const createPlantingCalendar = async (req, res) => {
             `,
             [
                 crop_id,
-                location_id,
+                location_id || null,
                 planting_month || null,
                 season || null,
                 growing_period || null,
@@ -238,12 +242,183 @@ const createPlantingCalendar = async (req, res) => {
             error
         );
 
+        if (error.code === "ER_BAD_NULL_ERROR") {
+            return res.status(409).json({
+                success: false,
+                message:
+                    "The database still requires a location for planting schedules. Run database/migrations/20261025_make_planting_calendar_location_optional.sql, then try again."
+            });
+        }
+
         res.status(500).json({
             success: false,
             message:
                 "Failed to create planting calendar entry."
         });
 
+    } finally {
+        connection.release();
+    }
+};
+
+const updatePlantingCalendarSchedules = async (req, res) => {
+    const connection = await pool.getConnection();
+
+    try {
+        const {
+            calendar_ids,
+            crop_id,
+            planting_month,
+            season,
+            growing_period,
+            harvest_period,
+            notes
+        } = req.body;
+
+        const requestedIds = Array.isArray(calendar_ids)
+            ? calendar_ids.map(Number)
+            : [];
+        const ids = [...new Set(requestedIds)];
+
+        if (
+            ids.length === 0 ||
+            ids.length !== requestedIds.length ||
+            ids.some((id) => !Number.isInteger(id) || id <= 0) ||
+            !Number.isInteger(Number(crop_id)) ||
+            Number(crop_id) <= 0
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Valid schedule IDs and crop are required."
+            });
+        }
+
+        await connection.beginTransaction();
+
+        const [existingSchedules] = await connection.query(
+            "SELECT calendar_id FROM planting_calendar WHERE calendar_id IN (?) FOR UPDATE",
+            [ids]
+        );
+
+        if (existingSchedules.length !== ids.length) {
+            await connection.rollback();
+            return res.status(404).json({
+                success: false,
+                message: "One or more planting schedules were not found."
+            });
+        }
+
+        const [crop] = await connection.query(
+            "SELECT crop_id FROM crops WHERE crop_id = ?",
+            [Number(crop_id)]
+        );
+
+        if (crop.length === 0) {
+            await connection.rollback();
+            return res.status(404).json({
+                success: false,
+                message: "Crop not found."
+            });
+        }
+
+        await connection.query(
+            `
+            UPDATE planting_calendar
+            SET
+                crop_id = ?,
+                planting_month = ?,
+                season = ?,
+                growing_period = ?,
+                harvest_period = ?,
+                notes = ?
+            WHERE calendar_id IN (?)
+            `,
+            [
+                Number(crop_id),
+                planting_month || null,
+                season || null,
+                growing_period || null,
+                harvest_period || null,
+                notes || null,
+                ids
+            ]
+        );
+
+        await connection.commit();
+
+        res.json({
+            success: true,
+            message: "Planting schedules updated successfully.",
+            calendar_ids: ids
+        });
+    } catch (error) {
+        await connection.rollback();
+
+        console.error("Error updating planting calendar schedules:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to update planting calendar schedules."
+        });
+    } finally {
+        connection.release();
+    }
+};
+
+const deletePlantingCalendarSchedules = async (req, res) => {
+    const connection = await pool.getConnection();
+
+    try {
+        const requestedIds = Array.isArray(req.body.calendar_ids)
+            ? req.body.calendar_ids.map(Number)
+            : [];
+        const ids = [...new Set(requestedIds)];
+
+        if (
+            ids.length === 0 ||
+            ids.length !== requestedIds.length ||
+            ids.some((id) => !Number.isInteger(id) || id <= 0)
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Valid schedule IDs are required."
+            });
+        }
+
+        await connection.beginTransaction();
+
+        const [existingSchedules] = await connection.query(
+            "SELECT calendar_id FROM planting_calendar WHERE calendar_id IN (?) FOR UPDATE",
+            [ids]
+        );
+
+        if (existingSchedules.length !== ids.length) {
+            await connection.rollback();
+            return res.status(404).json({
+                success: false,
+                message: "One or more planting schedules were not found."
+            });
+        }
+
+        await connection.query(
+            "DELETE FROM planting_calendar WHERE calendar_id IN (?)",
+            [ids]
+        );
+        await connection.commit();
+
+        res.json({
+            success: true,
+            message: "Planting schedules deleted successfully."
+        });
+    } catch (error) {
+        await connection.rollback();
+
+        console.error("Error deleting planting calendar schedules:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to delete planting calendar schedules."
+        });
     } finally {
         connection.release();
     }
@@ -266,12 +441,10 @@ const updatePlantingCalendar = async (req, res) => {
             notes
         } = req.body;
 
-        // VALIDATE REQUIRED FIELDS
-        if (!crop_id || !location_id) {
+        if (!crop_id) {
             return res.status(400).json({
                 success: false,
-                message:
-                    "Crop and location are required."
+                message: "Crop is required."
             });
         }
 
@@ -312,9 +485,8 @@ const updatePlantingCalendar = async (req, res) => {
             });
         }
 
-        // CHECK IF LOCATION EXISTS
-        const [location] =
-            await connection.query(
+        if (location_id != null && location_id !== "") {
+            const [location] = await connection.query(
                 `
                 SELECT location_id
                 FROM locations
@@ -323,11 +495,12 @@ const updatePlantingCalendar = async (req, res) => {
                 [location_id]
             );
 
-        if (location.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Location not found."
-            });
+            if (location.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Location not found."
+                });
+            }
         }
 
         // START TRANSACTION
@@ -349,7 +522,7 @@ const updatePlantingCalendar = async (req, res) => {
             `,
             [
                 crop_id,
-                location_id,
+                location_id || null,
                 planting_month || null,
                 season || null,
                 growing_period || null,
@@ -456,6 +629,8 @@ module.exports = {
     getPlantingCalendar,
     getPlantingCalendarByLocation,
     createPlantingCalendar,
+    updatePlantingCalendarSchedules,
+    deletePlantingCalendarSchedules,
     updatePlantingCalendar,
     deletePlantingCalendar
 };

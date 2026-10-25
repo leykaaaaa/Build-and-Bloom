@@ -79,13 +79,13 @@ CREATE TABLE crop_requirements (
 
 -- ============================================
 -- 5. PLANTING CALENDAR
--- Location and seasonal planting information
+-- General crop and seasonal planting information; location is optional
 -- ============================================
 
 CREATE TABLE planting_calendar (
     calendar_id INT AUTO_INCREMENT PRIMARY KEY,
     crop_id INT NOT NULL,
-    location_id INT NOT NULL,
+    location_id INT NULL,
 
     planting_month VARCHAR(100),
     season VARCHAR(100),
@@ -101,7 +101,7 @@ CREATE TABLE planting_calendar (
 
     FOREIGN KEY (location_id)
         REFERENCES locations(location_id)
-        ON DELETE CASCADE
+        ON DELETE SET NULL
 );
 
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { loginUser } from "../../services/authService";
@@ -23,6 +23,12 @@ export default function LoginPage() {
 
     const [error, setError] =
         useState("");
+
+    useEffect(() => {
+        if (new URLSearchParams(window.location.search).get("reason") === "session-expired") {
+            setError("Your session expired. Please log in again to continue.");
+        }
+    }, []);
 
 
     function handleChange(event) {
@@ -152,7 +158,9 @@ localStorage.setItem(
                     <div className="auth-error">
 
                         <strong>
-                            Login failed
+                            {error.startsWith("Your session expired")
+                                ? "Session expired"
+                                : "Login failed"}
                         </strong>
 
                         <p>

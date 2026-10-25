@@ -2514,52 +2514,26 @@ textarea {
 }
 
 
-/* LOCATION */
-
-.calendar-location {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-    margin-bottom: 40px;
-    padding: 20px 24px;
-    background: #ffffff;
-    border: 1px solid #dcebdd;
-    border-radius: 18px;
-}
-
-.calendar-location > div {
+.calendar-overview {
     display: flex;
     flex-direction: column;
     gap: 5px;
+    margin-bottom: 36px;
+    padding: 19px 22px;
+    border: 1px solid #dcebdd;
+    border-radius: 16px;
+    background: linear-gradient(120deg, #edf7ef, #fff5f8);
 }
 
-.calendar-location span {
-    color: #758078;
-    font-size: 0.75rem;
-}
-
-.calendar-location strong {
+.calendar-overview strong {
     color: #315c3b;
-    font-size: 1.05rem;
+    font-size: 0.95rem;
 }
 
-.calendar-location select {
-    min-width: 190px;
-    padding: 12px 15px;
-    border: 1px solid #cfded1;
-    border-radius: 10px;
-    background: #ffffff;
-    color: #315c3b;
-    font-size: 0.88rem;
-    font-weight: 600;
-    cursor: pointer;
-    outline: none;
-}
-
-.calendar-location select:focus {
-    border-color: #315c3b;
-    box-shadow: 0 0 0 3px rgba(49, 92, 59, 0.08);
+.calendar-overview span {
+    color: #68736b;
+    font-size: 0.8rem;
+    line-height: 1.6;
 }
 
 
@@ -2581,6 +2555,30 @@ textarea {
     margin: 10px 0 0;
     color: #315c3b;
     font-size: 1.55rem;
+}
+
+.calendar-season {
+    margin-top: 32px;
+}
+
+.calendar-season-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 11px;
+    border-bottom: 1px solid #dcebdd;
+}
+
+.calendar-season-header h3 {
+    color: #315c3b;
+    font-size: 1.15rem;
+}
+
+.calendar-season-header span {
+    color: #758078;
+    font-size: 0.75rem;
 }
 
 .calendar-count {
@@ -2644,7 +2642,7 @@ textarea {
     font-size: 1.8rem;
 }
 
-.calendar-card-top h3 {
+.calendar-card-top h4 {
     margin: 5px 0 0;
     color: #315c3b;
     font-size: 1.25rem;
@@ -2666,6 +2664,12 @@ textarea {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
     padding-top: 20px;
+}
+
+.calendar-schedule + .calendar-schedule {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid #edf2ed;
 }
 
 .calendar-detail {
@@ -2828,15 +2832,6 @@ textarea {
         grid-template-columns: 1fr;
     }
 
-    .calendar-location {
-        align-items: stretch;
-        flex-direction: column;
-    }
-
-    .calendar-location select {
-        width: 100%;
-    }
-
 }
 
 
@@ -2852,11 +2847,6 @@ textarea {
 
     .calendar-header h1 {
         font-size: 2rem;
-    }
-
-    .calendar-location {
-        padding: 18px;
-        border-radius: 15px;
     }
 
     .calendar-results-header {

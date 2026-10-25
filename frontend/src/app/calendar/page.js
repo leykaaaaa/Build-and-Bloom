@@ -3,62 +3,8 @@
 import { useEffect, useState } from "react";
 
 import {
-    getPlantingCalendarByLocationId
+    getPlantingCalendar
 } from "../../services/plantingCalendarService";
-
-
-
-const locations = [
-    { id: 8, name: "Alaminos" },
-    { id: 6, name: "Agno" },
-    { id: 7, name: "Aguilar" },
-    { id: 9, name: "Alcala" },
-    { id: 10, name: "Anda" },
-    { id: 11, name: "Asingan" },
-    { id: 12, name: "Balungao" },
-    { id: 13, name: "Bani" },
-    { id: 14, name: "Basista" },
-    { id: 15, name: "Bautista" },
-    { id: 16, name: "Bayambang" },
-    { id: 17, name: "Binalonan" },
-    { id: 18, name: "Binmaley" },
-    { id: 19, name: "Bolinao" },
-    { id: 20, name: "Bugallon" },
-    { id: 21, name: "Burgos" },
-    { id: 22, name: "Calasiao" },
-    { id: 23, name: "Dasol" },
-    { id: 1, name: "Dagupan" },
-    { id: 24, name: "Infanta" },
-    { id: 25, name: "Labrador" },
-    { id: 26, name: "Laoac" },
-    { id: 2, name: "Lingayen" },
-    { id: 27, name: "Mabini" },
-    { id: 28, name: "Malasiqui" },
-    { id: 29, name: "Manaoag" },
-    { id: 30, name: "Mangaldan" },
-    { id: 31, name: "Mangatarem" },
-    { id: 32, name: "Mapandan" },
-    { id: 33, name: "Natividad" },
-    { id: 34, name: "Pozorrubio" },
-    { id: 35, name: "Rosales" },
-    { id: 5, name: "San Carlos" },
-    { id: 36, name: "San Fabian" },
-    { id: 37, name: "San Jacinto" },
-    { id: 38, name: "San Manuel" },
-    { id: 39, name: "San Nicolas" },
-    { id: 40, name: "San Quintin" },
-    { id: 41, name: "Santa Maria" },
-    { id: 4, name: "Santa Barbara" },
-    { id: 42, name: "Santo Tomas" },
-    { id: 43, name: "Sison" },
-    { id: 44, name: "Sual" },
-    { id: 45, name: "Tayug" },
-    { id: 3, name: "Urdaneta" },
-    { id: 46, name: "Umingan" },
-    { id: 47, name: "Urbiztondo" },
-    { id: 48, name: "Villasis" },
-];
-
 
 
 function getCropIcon(category) {
@@ -90,10 +36,6 @@ function getCropIcon(category) {
 
 
 export default function CalendarPage() {
-
-    const [locationId, setLocationId] =
-        useState(1);
-
     const [calendar, setCalendar] =
         useState([]);
 
@@ -156,67 +98,87 @@ export default function CalendarPage() {
     }, []);
 
 
+    // Load all schedules so the calendar can show a general guide.
     // =========================================================
-    // LOAD CALENDAR
-    // =========================================================
-
-    async function loadCalendar(
-        selectedLocationId
-    ) {
-
-        setLoading(true);
-        setError("");
-
-        try {
-
-            const data =
-                await getPlantingCalendarByLocationId(
-                    selectedLocationId
+    useEffect(() => {
+        async function loadCalendar() {
+            try {
+                const data = await getPlantingCalendar();
+                setCalendar(Array.isArray(data) ? data : []);
+            } catch (err) {
+                console.error(err);
+                setError(
+                    err.message ||
+                    "Unable to load planting calendar."
                 );
-
-            setCalendar(data);
-
-        } catch (err) {
-
-            console.error(err);
-
-            setError(
-                err.message ||
-                "Unable to load planting calendar."
-            );
-
-            setCalendar([]);
-
-        } finally {
-
-            setLoading(false);
-
+            } finally {
+                setLoading(false);
+            }
         }
 
-    }
+        loadCalendar();
+    }, []);
 
+    const scheduleGroups = Object.values(
+        calendar.reduce((seasons, item) => {
+            const season = item.season?.trim() || "Season not specified";
+            const scheduleKey = [
+                item.crop_id,
+                item.planting_month?.trim().toLowerCase() || "",
+                item.growing_period?.trim().toLowerCase() || "",
+                item.harvest_period?.trim().toLowerCase() || "",
+                season.toLowerCase(),
+            ].join("|");
 
-    useEffect(() => {
+            if (!seasons[season]) {
+                seasons[season] = {
+                    name: season,
+                    crops: {},
+                };
+            }
 
-        loadCalendar(locationId);
+            if (!seasons[season].crops[item.crop_id]) {
+                seasons[season].crops[item.crop_id] = {
+                    crop_id: item.crop_id,
+                    crop_name: item.crop_name,
+                    category: item.category,
+                    schedules: {},
+                };
+            }
 
-    }, [locationId]);
+            if (!seasons[season].crops[item.crop_id].schedules[scheduleKey]) {
+                seasons[season].crops[item.crop_id].schedules[scheduleKey] = {
+                    planting_month: item.planting_month,
+                    growing_period: item.growing_period,
+                    harvest_period: item.harvest_period,
+                    notes: new Set(),
+                };
+            }
 
+            if (item.notes?.trim()) {
+                seasons[season].crops[item.crop_id].schedules[scheduleKey].notes.add(item.notes.trim());
+            }
 
-    function handleLocationChange(event) {
+            return seasons;
+        }, {})
+    )
+        .sort((first, second) => first.name.localeCompare(second.name))
+        .map((season) => ({
+            ...season,
+            crops: Object.values(season.crops)
+                .map((crop) => ({
+                    ...crop,
+                    schedules: Object.values(crop.schedules).map((schedule) => ({
+                        ...schedule,
+                        notes: [...schedule.notes],
+                    })),
+                }))
+                .sort((first, second) => first.crop_name.localeCompare(second.crop_name)),
+        }));
 
-        setLocationId(
-            Number(event.target.value)
-        );
-
-    }
-
-
-    const selectedLocation =
-        locations.find(
-            (location) =>
-                location.id === locationId
-        );
+    const cropCount = new Set(
+        calendar.map((item) => item.crop_id)
+    ).size;
 
 
     return (
@@ -239,54 +201,17 @@ export default function CalendarPage() {
                     </h1>
 
                     <p>
-                        Explore recommended planting schedules
-                        based on your growing location in
-                        Pangasinan.
+                        Explore general planting guidance for Pangasinan, organized
+                        by season and crop.
                     </p>
 
                 </div>
 
 
-                {/* LOCATION SELECTOR */}
-
-                <div className="calendar-location">
-
-                    <div>
-
-                        <span>
-                             Growing Location
-                        </span>
-
-                        <strong>
-                            {selectedLocation?.name},
-                            {" "}Pangasinan
-                        </strong>
-
-                    </div>
-
-
-                    <select
-                        value={locationId}
-                        onChange={handleLocationChange}
-                    >
-
-                        {locations.map(
-                            (location) => (
-
-                                <option
-                                    key={location.id}
-                                    value={location.id}
-                                >
-                                    {location.name}
-                                </option>
-
-                            )
-                        )}
-
-                    </select>
-
+                <div className="calendar-overview">
+                    <strong>General planting guide</strong>
+                    <span>Use these schedules as a starting point; actual timing can vary with local conditions.</span>
                 </div>
-
 
                 {/* ERROR */}
 
@@ -351,9 +276,7 @@ export default function CalendarPage() {
                         </h2>
 
                         <p>
-                            There are currently no planting
-                            schedule records available for
-                            {` ${selectedLocation?.name}`}.
+                            There are currently no planting schedule records available.
                         </p>
 
                     </div>
@@ -365,7 +288,7 @@ export default function CalendarPage() {
 
                 {!loading &&
                     !error &&
-                    calendar.length > 0 && (
+                    scheduleGroups.length > 0 && (
 
                     <section className="calendar-results">
 
@@ -378,171 +301,90 @@ export default function CalendarPage() {
                                 </span>
 
                                 <h2>
-                                    Crops for{" "}
-                                    {selectedLocation?.name}
+                                    Planting by season
                                 </h2>
 
                             </div>
 
                             <span className="calendar-count">
-                                {calendar.length}{" "}
-                                {calendar.length === 1
-                                    ? "crop"
-                                    : "crops"}
+                                {cropCount}{" "}
+                                {cropCount === 1 ? "crop" : "crops"}
                             </span>
 
                         </div>
 
 
-                        <div className="calendar-grid">
+                        {scheduleGroups.map((group) => (
+                            <section className="calendar-season" key={group.name}>
+                                <div className="calendar-season-header">
+                                    <h3>{group.name}</h3>
+                                    <span>
+                                        {group.crops.length} {group.crops.length === 1 ? "crop" : "crops"}
+                                    </span>
+                                </div>
 
-                            {calendar.map(
-                                (item) => (
+                                <div className="calendar-grid">
+                                    {group.crops.map((crop) => (
+                                        <article
+                                            className="calendar-card"
+                                            key={`${group.name}-${crop.crop_id}`}
+                                        >
 
-                                    <article
-                                        className="calendar-card"
-                                        key={item.calendar_id}
-                                    >
-
-                                        <div className="calendar-card-top">
-
-                                            <div className="calendar-crop-icon">
-
-                                                {getCropIcon(
-                                                    item.category
-                                                )}
-
-                                            </div>
-
-                                            <div>
-
-                                                <span className="crop-category">
-                                                    {item.category}
-                                                </span>
-
-                                                <h3>
-                                                    {item.crop_name}
-                                                </h3>
-
-                                            </div>
-
-                                        </div>
-
-
-                                        <div className="calendar-details">
-
-                                            <div className="calendar-detail">
-
-                                                <span>
-                                                    
-                                                </span>
-
-                                                <div>
-
-                                                    <small>
-                                                        Planting Period
-                                                    </small>
-
-                                                    <strong>
-                                                        {item.planting_month ||
-                                                            "Not specified"}
-                                                    </strong>
-
+                                            <div className="calendar-card-top">
+                                                <div className="calendar-crop-icon">
+                                                    {getCropIcon(crop.category)}
                                                 </div>
-
-                                            </div>
-
-
-                                            <div className="calendar-detail">
-
-                                                <span>
-                                                    ️
-                                                </span>
-
                                                 <div>
-
-                                                    <small>
-                                                        Season
-                                                    </small>
-
-                                                    <strong>
-                                                        {item.season ||
-                                                            "Not specified"}
-                                                    </strong>
-
+                                                    <span className="crop-category">
+                                                        {crop.category}
+                                                    </span>
+                                                    <h4>{crop.crop_name}</h4>
                                                 </div>
-
                                             </div>
 
+                                            <div className="calendar-schedule-list">
+                                                {crop.schedules.map((schedule, index) => (
+                                                    <div className="calendar-schedule" key={`${schedule.planting_month}-${index}`}>
+                                                        <div className="calendar-details">
+                                                            <div className="calendar-detail">
+                                                                <span aria-hidden="true"></span>
+                                                                <div>
+                                                                    <small>Planting Period</small>
+                                                                    <strong>{schedule.planting_month || "Not specified"}</strong>
+                                                                </div>
+                                                            </div>
 
-                                            <div className="calendar-detail">
+                                                            <div className="calendar-detail">
+                                                                <span aria-hidden="true"></span>
+                                                                <div>
+                                                                    <small>Growing Period</small>
+                                                                    <strong>{schedule.growing_period || "Not specified"}</strong>
+                                                                </div>
+                                                            </div>
 
-                                                <span>
-                                                    
-                                                </span>
+                                                            <div className="calendar-detail">
+                                                                <span aria-hidden="true"></span>
+                                                                <div>
+                                                                    <small>Harvest Period</small>
+                                                                    <strong>{schedule.harvest_period || "Not specified"}</strong>
+                                                                </div>
+                                                            </div>
+                                                        </div>
 
-                                                <div>
-
-                                                    <small>
-                                                        Growing Period
-                                                    </small>
-
-                                                    <strong>
-                                                        {item.growing_period ||
-                                                            "Not specified"}
-                                                    </strong>
-
-                                                </div>
-
+                                                        {schedule.notes.length > 0 && (
+                                                            <div className="calendar-notes">
+                                                                <strong>Notes</strong>
+                                                                <p>{schedule.notes.join(" ")}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
                                             </div>
-
-
-                                            <div className="calendar-detail">
-
-                                                <span>
-                                                    
-                                                </span>
-
-                                                <div>
-
-                                                    <small>
-                                                        Harvest Period
-                                                    </small>
-
-                                                    <strong>
-                                                        {item.harvest_period ||
-                                                            "Not specified"}
-                                                    </strong>
-
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-
-
-                                        {item.notes && (
-
-                                            <div className="calendar-notes">
-
-                                                <strong>
-                                                     Note
-                                                </strong>
-
-                                                <p>
-                                                    {item.notes}
-                                                </p>
-
-                                            </div>
-
-                                        )}
-
-                                    </article>
-
-                                )
-                            )}
-
-                        </div>
+                                        </article>
+                                    ))}
+                                </div>
+                            </section>
+                        ))}
 
                     </section>
 

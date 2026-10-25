@@ -2,6 +2,35 @@
 
 import { useEffect, useState } from "react";
 
+const API_URL = "http://localhost:5000";
+
+async function fetchWithAdminAuth(url, options = {}) {
+    const token = localStorage.getItem("buildAndBloomToken");
+
+    if (!token) {
+        localStorage.removeItem("buildAndBloomUser");
+        window.location.href = "/login?reason=session-expired";
+        throw new Error("Your session has expired. Please log in again.");
+    }
+
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            ...options.headers,
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    if (response.status === 401) {
+        localStorage.removeItem("buildAndBloomToken");
+        localStorage.removeItem("buildAndBloomUser");
+        window.location.href = "/login?reason=session-expired";
+        throw new Error("Your session has expired. Please log in again.");
+    }
+
+    return response;
+}
+
 export default function PlantingCalendarManagement() {
     const [calendar, setCalendar] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -9,13 +38,11 @@ export default function PlantingCalendarManagement() {
     const [search, setSearch] = useState("");
     const [showAddForm, setShowAddForm] = useState(false);
     const [crops, setCrops] = useState([]);
-    const [locations, setLocations] = useState([]);
     const [saving, setSaving] = useState(false);
     const [formError, setFormError] = useState("");
 
     const [formData, setFormData] = useState({
         crop_id: "",
-        location_id: "",
         planting_month: "",
         season: "",
         growing_period: "",
@@ -79,33 +106,8 @@ export default function PlantingCalendarManagement() {
             }
         };
 
-        const fetchLocations = async () => {
-            try {
-                const response = await fetch(
-                    "http://localhost:5000/api/locations"
-                );
-
-                const result = await response.json();
-
-                if (!response.ok || !result.success) {
-                    throw new Error(
-                        result.message ||
-                            "Failed to retrieve locations."
-                    );
-                }
-
-                setLocations(result.data);
-            } catch (error) {
-                console.error(
-                    "Failed to fetch locations:",
-                    error
-                );
-            }
-        };
-
         fetchCalendar();
         fetchCrops();
-        fetchLocations();
     }, []);
 
     const handleAddSchedule = async (e) => {
@@ -115,10 +117,10 @@ export default function PlantingCalendarManagement() {
         setSaving(true);
 
         try {
-            const response = await fetch(
+            const response = await fetchWithAdminAuth(
                 editingSchedule
-                    ? `http://localhost:5000/api/planting-calendar/${editingSchedule.calendar_id}`
-                    : "http://localhost:5000/api/planting-calendar",
+                    ? `${API_URL}/api/planting-calendar/bulk`
+                    : `${API_URL}/api/planting-calendar`,
                 {
                     method: editingSchedule
                         ? "PUT"
@@ -130,8 +132,11 @@ export default function PlantingCalendarManagement() {
                         )}`,
                     },
                     body: JSON.stringify({
+                        location_id: null,
+                        ...(editingSchedule
+                            ? { calendar_ids: editingSchedule.calendar_ids }
+                            : {}),
                         crop_id: Number(formData.crop_id),
-                        location_id: Number(formData.location_id),
                         planting_month:
                             formData.planting_month,
                         season: formData.season,
@@ -175,7 +180,6 @@ export default function PlantingCalendarManagement() {
             // Reset form
             setFormData({
                 crop_id: "",
-                location_id: "",
                 planting_month: "",
                 season: "",
                 growing_period: "",
@@ -208,13 +212,57 @@ export default function PlantingCalendarManagement() {
         }
     };
 
-    const filteredCalendar = calendar.filter((entry) => {
+    const groupedCalendar = Object.values(
+        calendar.reduce((groups, entry) => {
+            const scheduleKey = JSON.stringify([
+                entry.crop_id,
+                entry.planting_month,
+                entry.season,
+                entry.growing_period,
+                entry.harvest_period,
+                entry.notes,
+            ].map((value) => String(value ?? "").trim().toLowerCase()));
+
+            if (!groups[scheduleKey]) {
+                groups[scheduleKey] = {
+                    ...entry,
+                    calendar_ids: [],
+                    records: [],
+                    location_names: new Set(),
+                    has_general_entry: false,
+                };
+            }
+
+            const group = groups[scheduleKey];
+            group.calendar_ids.push(entry.calendar_id);
+            group.records.push(entry);
+
+            if (entry.location_name) {
+                group.location_names.add(entry.location_name);
+            } else {
+                group.has_general_entry = true;
+            }
+
+            if (entry.calendar_id < group.calendar_id) {
+                group.calendar_id = entry.calendar_id;
+            }
+
+            return groups;
+        }, {})
+    ).map((group) => ({
+        ...group,
+        location_names: [...group.location_names].sort((a, b) => a.localeCompare(b)),
+    }));
+
+    const filteredCalendar = groupedCalendar.filter((entry) => {
         const searchTerm = search.toLowerCase();
 
         return (
             entry.crop_name?.toLowerCase().includes(searchTerm) ||
-            entry.location_name?.toLowerCase().includes(searchTerm) ||
             entry.category?.toLowerCase().includes(searchTerm) ||
+            entry.location_names.some((location) =>
+                location.toLowerCase().includes(searchTerm)
+            ) ||
             entry.planting_month
                 ?.toLowerCase()
                 .includes(searchTerm) ||
@@ -263,8 +311,7 @@ export default function PlantingCalendarManagement() {
                                 color: "#6b7280",
                             }}
                         >
-                            Manage planting schedules for crops and
-                            Pangasinan locations.
+                            Manage general planting schedules by crop and season.
                         </p>
                     </div>
 
@@ -274,7 +321,6 @@ export default function PlantingCalendarManagement() {
 
         setFormData({
             crop_id: "",
-            location_id: "",
             planting_month: "",
             season: "",
             growing_period: "",
@@ -354,9 +400,21 @@ export default function PlantingCalendarManagement() {
                     }}
                 >
                     {editingSchedule
-                        ? "Update the planting schedule information."
-                        : "Add planting schedule information for a crop and Pangasinan location."}
+                        ? "Update this crop and season schedule."
+                        : "Add a general planting schedule for a crop."}
                 </p>
+                {editingSchedule?.has_legacy_locations && (
+                    <p
+                        style={{
+                            marginTop: "6px",
+                            marginBottom: 0,
+                            color: "#9a6700",
+                            fontSize: "13px",
+                        }}
+                    >
+                        This grouped schedule includes older location-specific entries. Saving changes their schedule details while keeping their locations.
+                    </p>
+                )}
             </div>
 
             <button
@@ -440,38 +498,6 @@ export default function PlantingCalendarManagement() {
                                 value={crop.crop_id}
                             >
                                 {crop.crop_name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Location */}
-                <div>
-                    <label style={labelStyle}>
-                        Location *
-                    </label>
-
-                    <select
-                        value={formData.location_id}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                location_id: e.target.value,
-                            })
-                        }
-                        required
-                        style={inputStyle}
-                    >
-                        <option value="">
-                            Select Location
-                        </option>
-
-                        {locations.map((location) => (
-                            <option
-                                key={location.location_id}
-                                value={location.location_id}
-                            >
-                                {location.location_name}
                             </option>
                         ))}
                     </select>
@@ -672,7 +698,7 @@ export default function PlantingCalendarManagement() {
                                 fontSize: "14px",
                             }}
                         >
-                            Calendar Records
+                            Schedule Records
                         </div>
 
                         <div
@@ -683,7 +709,7 @@ export default function PlantingCalendarManagement() {
                                 marginTop: "5px",
                             }}
                         >
-                            {loading ? "..." : calendar.length}
+                            {loading ? "..." : groupedCalendar.length}
                         </div>
                     </div>
 
@@ -715,7 +741,7 @@ export default function PlantingCalendarManagement() {
                             {loading
                                 ? "..."
                                 : new Set(
-                                      calendar.map(
+                                      groupedCalendar.map(
                                           (entry) => entry.crop_id
                                       )
                                   ).size}
@@ -736,7 +762,7 @@ export default function PlantingCalendarManagement() {
                                 fontSize: "14px",
                             }}
                         >
-                            Locations Covered
+                            Seasons Covered
                         </div>
 
                         <div
@@ -750,9 +776,9 @@ export default function PlantingCalendarManagement() {
                             {loading
                                 ? "..."
                                 : new Set(
-                                      calendar.map(
-                                          (entry) => entry.location_id
-                                      )
+                                      groupedCalendar
+                                          .map((entry) => entry.season?.trim())
+                                          .filter(Boolean)
                                   ).size}
                         </div>
                     </div>
@@ -786,7 +812,7 @@ export default function PlantingCalendarManagement() {
                     >
                         <input
                             type="text"
-                            placeholder="Search crop, location, month, or season..."
+                            placeholder="Search crop, month, or season..."
                             value={search}
                             onChange={(e) =>
                                 setSearch(e.target.value)
@@ -842,7 +868,7 @@ export default function PlantingCalendarManagement() {
                                     color: "#1f2937",
                                 }}
                             >
-                                Planting Calendar Database
+                                Crop and Season Schedules
                             </h2>
                         </div>
 
@@ -872,7 +898,7 @@ export default function PlantingCalendarManagement() {
                                         </th>
 
                                         <th style={thStyle}>
-                                            Location
+                                            Schedule Scope
                                         </th>
 
                                         <th style={thStyle}>
@@ -933,9 +959,13 @@ export default function PlantingCalendarManagement() {
                                                 </td>
 
                                                 <td style={tdStyle}>
-                                                    {
-                                                        entry.location_name
-                                                    }
+                                                    {entry.has_general_entry
+                                                        ? "General"
+                                                        : entry.location_names.length > 1
+                                                            ? `General (${entry.location_names.length} legacy locations)`
+                                                            : entry.location_names.length === 1
+                                                                ? `Legacy: ${entry.location_names[0]}`
+                                                                : "General"}
                                                 </td>
 
                                                 <td style={tdStyle}>
@@ -976,12 +1006,13 @@ export default function PlantingCalendarManagement() {
                                                         <button
                                                             type="button"
                                                             onClick={() => {
-                                                                setEditingSchedule(entry);
+                                                                setEditingSchedule({
+                                                                    ...entry,
+                                                                    has_legacy_locations: entry.location_names.length > 0,
+                                                                });
                                                                 setFormData({
                                                                     crop_id:
                                                                         entry.crop_id || "",
-                                                                    location_id:
-                                                                        entry.location_id || "",
                                                                     planting_month:
                                                                         entry.planting_month || "",
                                                                     season:
@@ -1015,7 +1046,7 @@ export default function PlantingCalendarManagement() {
                                                             onClick={async () => {
                                                                 const confirmed =
                                                                     window.confirm(
-                                                                        `Are you sure you want to delete the planting schedule for ${entry.crop_name} in ${entry.location_name}?`
+                                                                        `Delete the planting schedule for ${entry.crop_name}?${entry.calendar_ids.length > 1 ? ` This removes ${entry.calendar_ids.length} duplicate entries from ${entry.location_names.join(", ")}.` : ""}`
                                                                     );
 
                                                                 if (!confirmed) {
@@ -1024,16 +1055,20 @@ export default function PlantingCalendarManagement() {
 
                                                                 try {
                                                                     const response =
-                                                                        await fetch(
-                                                                            `http://localhost:5000/api/planting-calendar/${entry.calendar_id}`,
+                                                                        await fetchWithAdminAuth(
+                                                                            `${API_URL}/api/planting-calendar/bulk`,
                                                                             {
                                                                                 method: "DELETE",
                                                                                 headers: {
+                                                                                    "Content-Type": "application/json",
                                                                                     Authorization:
                                                                                         `Bearer ${localStorage.getItem(
                                                                                             "buildAndBloomToken"
                                                                                         )}`,
                                                                                 },
+                                                                                body: JSON.stringify({
+                                                                                    calendar_ids: entry.calendar_ids,
+                                                                                }),
                                                                             }
                                                                         );
 
