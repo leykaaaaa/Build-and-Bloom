@@ -8,30 +8,26 @@ import {
 
 
 function getCropIcon(category) {
-
     const value =
         category?.toLowerCase() || "";
 
-    if (
-        value.includes("rice") ||
-        value.includes("cereal")
-    ) {
-        return "";
-    }
-
     if (value.includes("vegetable")) {
-        return "";
+        return "VEG";
     }
 
     if (value.includes("root")) {
-        return "";
+        return "ROOT";
     }
 
     if (value.includes("legume")) {
-        return "";
+        return "LEG";
     }
 
-    return "";
+    if (value.includes("rice") || value.includes("cereal")) {
+        return "GRAIN";
+    }
+
+    return "CROP";
 }
 
 
@@ -179,6 +175,7 @@ export default function CalendarPage() {
     const cropCount = new Set(
         calendar.map((item) => item.crop_id)
     ).size;
+    const seasonCount = scheduleGroups.length;
 
 
     return (
@@ -191,26 +188,41 @@ export default function CalendarPage() {
                 {/* HEADER */}
 
                 <div className="calendar-header">
+                    <div className="calendar-header-copy">
+                        <span className="section-badge">
+                            Build & Bloom
+                        </span>
 
-                    <span className="section-badge">
-                         Build & Bloom
-                    </span>
+                        <h1>Planting Calendar</h1>
 
-                    <h1>
-                        Planting Calendar
-                    </h1>
+                        <p>
+                            Find the right time to plant. Browse general crop schedules
+                            organized by season for Pangasinan.
+                        </p>
+                    </div>
 
-                    <p>
-                        Explore general planting guidance for Pangasinan, organized
-                        by season and crop.
-                    </p>
-
+                    <div className="calendar-header-stats" aria-label="Calendar overview">
+                        <div className="calendar-header-stat">
+                            <strong>{loading ? "—" : cropCount}</strong>
+                            <span>Crops</span>
+                        </div>
+                        <div className="calendar-header-stat">
+                            <strong>{loading ? "—" : seasonCount}</strong>
+                            <span>Seasons</span>
+                        </div>
+                    </div>
                 </div>
 
 
                 <div className="calendar-overview">
-                    <strong>General planting guide</strong>
-                    <span>Use these schedules as a starting point; actual timing can vary with local conditions.</span>
+                    <span className="calendar-overview-mark" aria-hidden="true">i</span>
+                    <div>
+                        <strong>General planting guide</strong>
+                        <span>
+                            Treat these schedules as a starting point. Actual timing may vary
+                            with weather and local growing conditions.
+                        </span>
+                    </div>
                 </div>
 
                 {/* ERROR */}
@@ -290,7 +302,7 @@ export default function CalendarPage() {
                     !error &&
                     scheduleGroups.length > 0 && (
 
-                    <section className="calendar-results">
+                    <section className="calendar-results" aria-label="Planting schedules by season">
 
                         <div className="calendar-results-header">
 
@@ -307,18 +319,20 @@ export default function CalendarPage() {
                             </div>
 
                             <span className="calendar-count">
-                                {cropCount}{" "}
-                                {cropCount === 1 ? "crop" : "crops"}
+                                {scheduleGroups.length} planting seasons
                             </span>
 
                         </div>
 
 
                         {scheduleGroups.map((group) => (
-                            <section className="calendar-season" key={group.name}>
+                            <section className="calendar-season" key={group.name} aria-label={`${group.name} planting schedules`}>
                                 <div className="calendar-season-header">
-                                    <h3>{group.name}</h3>
-                                    <span>
+                                    <div>
+                                        <span className="calendar-season-kicker">PLANTING SEASON</span>
+                                        <h3>{group.name}</h3>
+                                    </div>
+                                    <span className="calendar-season-count">
                                         {group.crops.length} {group.crops.length === 1 ? "crop" : "crops"}
                                     </span>
                                 </div>
@@ -331,7 +345,7 @@ export default function CalendarPage() {
                                         >
 
                                             <div className="calendar-card-top">
-                                                <div className="calendar-crop-icon">
+                                                <div className="calendar-crop-icon" aria-hidden="true">
                                                     {getCropIcon(crop.category)}
                                                 </div>
                                                 <div>
@@ -347,7 +361,6 @@ export default function CalendarPage() {
                                                     <div className="calendar-schedule" key={`${schedule.planting_month}-${index}`}>
                                                         <div className="calendar-details">
                                                             <div className="calendar-detail">
-                                                                <span aria-hidden="true"></span>
                                                                 <div>
                                                                     <small>Planting Period</small>
                                                                     <strong>{schedule.planting_month || "Not specified"}</strong>
@@ -355,7 +368,6 @@ export default function CalendarPage() {
                                                             </div>
 
                                                             <div className="calendar-detail">
-                                                                <span aria-hidden="true"></span>
                                                                 <div>
                                                                     <small>Growing Period</small>
                                                                     <strong>{schedule.growing_period || "Not specified"}</strong>
@@ -363,7 +375,6 @@ export default function CalendarPage() {
                                                             </div>
 
                                                             <div className="calendar-detail">
-                                                                <span aria-hidden="true"></span>
                                                                 <div>
                                                                     <small>Harvest Period</small>
                                                                     <strong>{schedule.harvest_period || "Not specified"}</strong>
