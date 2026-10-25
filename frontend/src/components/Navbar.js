@@ -1,11 +1,24 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import styles from "./Navbar.module.css";
 
 export default function Navbar() {
     const [user, setUser] = useState(null);
     const [loaded, setLoaded] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
+    const pathname = usePathname();
+
+    const menuItems = [
+        { label: "Dashboard", href: "/dashboard" },
+        { label: "Crop Catalogue", href: "/crops" },
+        { label: "Crop Assessment", href: "/assessment" },
+        { label: "Weather", href: "/weather" },
+        { label: "Planting Calendar", href: "/calendar" },
+        { label: "My Plants", href: "/plants" },
+    ];
 
     useEffect(() => {
         function loadUser() {
@@ -59,14 +72,94 @@ export default function Navbar() {
 
     }, []);
 
+    useEffect(() => {
+        document.body.classList.toggle(
+            "user-sidebar-active",
+            loaded && Boolean(user)
+        );
+
+        return () => {
+            document.body.classList.remove("user-sidebar-active");
+        };
+    }, [loaded, user]);
+
+    useEffect(() => {
+        setMenuOpen(false);
+    }, [pathname]);
+
     function handleLogout() {
         localStorage.removeItem(
             "buildAndBloomUser"
         );
 
+        document.body.classList.remove("user-sidebar-active");
         setUser(null);
+        setMenuOpen(false);
 
         window.location.href = "/";
+    }
+
+    if (loaded && user) {
+        return (
+            <>
+                <button
+                    type="button"
+                    className={styles.mobileToggle}
+                    aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+                    aria-expanded={menuOpen}
+                    aria-controls="user-navigation"
+                    onClick={() => setMenuOpen((open) => !open)}
+                >
+                    <span />
+                    <span />
+                    <span />
+                </button>
+
+                {menuOpen && (
+                    <button
+                        type="button"
+                        className={styles.mobileOverlay}
+                        aria-label="Close navigation menu"
+                        onClick={() => setMenuOpen(false)}
+                    />
+                )}
+
+                <aside className={`${styles.sidebar}${menuOpen ? ` ${styles.sidebarOpen}` : ""}`}>
+                    <Link href="/dashboard" className={styles.brand} onClick={() => setMenuOpen(false)}>
+                        <span className={styles.brandMark} aria-hidden="true" />
+                        <span className={styles.brandText}>
+                            Build <span>&</span> Bloom
+                        </span>
+                    </Link>
+
+                    <nav className={styles.navigation} id="user-navigation" aria-label="User navigation">
+                        {menuItems.map((item) => {
+                            const isActive = pathname === item.href ||
+                                (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
+
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className={`${styles.navItem}${isActive ? ` ${styles.activeNavItem}` : ""}`}
+                                    aria-current={isActive ? "page" : undefined}
+                                    onClick={() => setMenuOpen(false)}
+                                >
+                                    {item.label}
+                                </Link>
+                            );
+                        })}
+                    </nav>
+
+                    <div className={styles.sidebarBottom}>
+                        <span className={styles.userName}>{user.full_name || "Gardener"}</span>
+                        <button type="button" className={styles.logoutButton} onClick={handleLogout}>
+                            Logout
+                        </button>
+                    </div>
+                </aside>
+            </>
+        );
     }
 
     /*
@@ -120,49 +213,35 @@ export default function Navbar() {
 
                 {/* NAVIGATION */}
 
-                <div className="navbar-links">
+                <button
+                    type="button"
+                    className="nav-toggle"
+                    aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+                    aria-expanded={menuOpen}
+                    aria-controls="primary-navigation"
+                    onClick={() => setMenuOpen((open) => !open)}
+                >
+                    <span />
+                    <span />
+                    <span />
+                </button>
 
-                    {user ? (
-                        <>
+                <div
+                    className={`navbar-links${menuOpen ? " is-open" : ""}`}
+                    id="primary-navigation"
+                >
 
-                        <Link href="/dashboard">
-    Dashboard
-</Link>
-                            <Link href="/crops">
-                                Crop Catalogue
-                            </Link>
+                    <Link href="/" onClick={() => setMenuOpen(false)}>
+                        Home
+                    </Link>
 
-                            <Link href="/assessment">
-                                Crop Assessment
-                            </Link>
+                    <a href="/#about" onClick={() => setMenuOpen(false)}>
+                        About
+                    </a>
 
-                            <Link href="/weather">
-                                Weather
-                            </Link>
-
-                            <Link href="/calendar">
-                                Planting Calendar
-                            </Link>
-
-                            <Link href="/plants">
-                                My Plants
-                            </Link>
-                        </>
-                    ) : (
-                        <>
-                            <Link href="/">
-                                Home
-                            </Link>
-
-                            <a href="/#about">
-                                About
-                            </a>
-
-                            <a href="/#features">
-                                Features
-                            </a>
-                        </>
-                    )}
+                    <a href="/#features" onClick={() => setMenuOpen(false)}>
+                        Features
+                    </a>
 
                 </div>
 
@@ -171,31 +250,19 @@ export default function Navbar() {
 
                 <div className="navbar-actions">
 
-                    {user ? (
-                        <button
-                            type="button"
-                            className="logout-button"
-                            onClick={handleLogout}
-                        >
-                            Logout
-                        </button>
-                    ) : (
-                        <>
-                            <Link
-                                href="/login"
-                                className="login-button"
-                            >
-                                Login
-                            </Link>
+                    <Link
+                        href="/login"
+                        className="login-button"
+                    >
+                        Login
+                    </Link>
 
-                            <Link
-                                href="/register"
-                                className="register-button"
-                            >
-                                Get Started
-                            </Link>
-                        </>
-                    )}
+                    <Link
+                        href="/register"
+                        className="register-button"
+                    >
+                        Get Started
+                    </Link>
 
                 </div>
 

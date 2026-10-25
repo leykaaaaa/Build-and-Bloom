@@ -1,0 +1,402 @@
+
+/* =========================================
+   PLAN THIS PLANT PAGE
+========================================= */
+
+.planPage {
+  min-height: 100vh;
+  padding: 70px 7% 80px;
+  background: radial-gradient(circle at top, #f9fff7 0%, #fffafc 42%, #fff 100%);
+  box-sizing: border-box;
+}
+
+.planContainer {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* HEADER */
+
+.planHeader {
+  margin: 25px 0 32px;
+  text-align: center;
+}
+
+.sectionBadge {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 7px 14px;
+  border: 1px solid rgba(77, 121, 88, 0.18);
+  border-radius: 999px;
+  background: rgba(237, 246, 237, 0.9);
+  color: #4d7958;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.planHeader h1 {
+  margin: 8px 0 12px;
+  color: #315c3b;
+  font-size: clamp(2.5rem, 4vw, 3.35rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.05em;
+}
+
+.planHeader p {
+  max-width: 620px;
+  margin: 0 auto;
+  color: #5f6d63;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+/* SELECTED CROP */
+
+.selectedCropCard {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 24px;
+  padding: 22px 24px;
+  background: linear-gradient(135deg, #f4fbf4 0%, #eef7ee 100%);
+  border: 1px solid #dfeee1;
+  border-radius: 20px;
+  box-shadow: 0 10px 24px rgba(50, 90, 63, 0.06);
+  box-sizing: border-box;
+}
+
+.selectedCropIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #ffffff 0%, #f4f8f4 100%);
+  font-size: 2rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 8px 18px rgba(70, 90, 70, 0.08);
+}
+
+.selectedCropCard > div:last-child {
+  min-width: 0;
+}
+
+.selectedCropCard span {
+  display: block;
+  margin-bottom: 4px;
+  color: #7a8d7f;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.selectedCropCard h2 {
+  margin: 0 0 4px;
+  color: #315c3b;
+  font-size: 1.55rem;
+  font-weight: 800;
+}
+
+.selectedCropCard p {
+  margin: 0;
+  color: #5f6d63;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* FORM */
+
+.planForm {
+  padding: 32px;
+  background: linear-gradient(180deg, #ffffff 0%, #fffcfd 100%);
+  border: 1px solid #efe5ea;
+  border-radius: 24px;
+  box-shadow: 0 12px 30px rgba(44, 66, 52, 0.06);
+  box-sizing: border-box;
+}
+
+/* FORM FIELDS */
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.formGroup label {
+  color: #46554a;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 14px;
+  border: 1px solid #e3d9de;
+  border-radius: 12px;
+  background: #fbfdfb;
+  color: #4d554f;
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.formGroup input,
+.formGroup select {
+  min-height: 48px;
+}
+
+.formGroup select {
+  cursor: pointer;
+}
+
+.formGroup textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.formGroup input::placeholder,
+.formGroup textarea::placeholder {
+  color: #9fa9a3;
+}
+
+.formGroup input:hover,
+.formGroup select:hover,
+.formGroup textarea:hover {
+  border-color: #c7d9c9;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  border-color: #8bb596;
+  box-shadow: 0 0 0 4px rgba(139, 181, 150, 0.12);
+}
+
+.formGroup input:disabled,
+.formGroup select:disabled,
+.formGroup textarea:disabled {
+  background: #f7f8f7;
+  cursor: not-allowed;
+}
+
+/* ERROR MESSAGE — LOCAL TO THIS PAGE */
+
+.assessmentError {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  margin-bottom: 22px;
+  padding: 17px 18px;
+  background: #fff5f5;
+  border: 1px solid #f0d5d5;
+  border-radius: 14px;
+}
+
+.assessmentError > span {
+  flex-shrink: 0;
+  font-size: 1.2rem;
+}
+
+.assessmentError strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #a64b4b;
+  font-size: 0.88rem;
+}
+
+.assessmentError p {
+  margin: 0;
+  color: #806565;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* LOADING STATE */
+
+.catalogueState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 250px;
+  color: #707870;
+  text-align: center;
+}
+
+.catalogueState p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* ERROR PAGE BUTTON */
+
+.errorBackButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: #315c3b;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.errorBackButton:hover {
+  background: #264d30;
+}
+
+/* FORM ACTIONS */
+
+.planFormActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.planCancelButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid #d7ddd8;
+  border-radius: 10px;
+  background: #fff;
+  color: #5f6b62;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.planCancelButton:hover {
+  background: #f6f8f6;
+  border-color: #bcc9be;
+  color: #315c3b;
+}
+
+.planSubmitButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 24px;
+  margin-top: 0;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #315c3b 0%, #4a7b55 100%);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(49, 92, 59, 0.18);
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.planSubmitButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #264d30 0%, #396b45 100%);
+  box-shadow: 0 10px 20px rgba(49, 92, 59, 0.2);
+  transform: translateY(-1px);
+}
+
+.planSubmitButton:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 700px) {
+  .planPage {
+    padding: 55px 5%;
+  }
+
+  .planHeader {
+    margin-top: 15px;
+  }
+
+  .planHeader h1 {
+    font-size: 2.25rem;
+  }
+
+  .planHeader p {
+    font-size: 0.86rem;
+  }
+
+  .planForm {
+    padding: 25px 21px;
+    border-radius: 18px;
+  }
+
+  .selectedCropCard {
+    padding: 20px;
+    gap: 14px;
+  }
+
+  .selectedCropIcon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    font-size: 1.8rem;
+  }
+
+  .selectedCropCard h2 {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .planPage {
+    padding: 45px 4%;
+  }
+
+  .planHeader h1 {
+    font-size: 2rem;
+  }
+
+  .selectedCropCard {
+    align-items: flex-start;
+  }
+
+  .planForm {
+    padding: 22px 18px;
+  }
+
+  .planFormActions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .planCancelButton,
+  .planSubmitButton {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .assessmentError {
+    padding: 15px;
+  }
+}

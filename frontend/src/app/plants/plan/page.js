@@ -9,6 +9,7 @@ import {
 
 import { getCropById } from "../../../services/cropService";
 import { createPlantingPlan } from "../../../services/plantingPlanService";
+import styles from "./plan.module.css";
 
 
 export default function PlanPlantPage() {
@@ -355,11 +356,11 @@ export default function PlanPlantPage() {
 
         return (
 
-            <section className="plan-page">
+            <section className={styles.planPage}>
 
-                <div className="plan-container">
+                <div className={styles.planContainer}>
 
-                    <div className="catalogue-state">
+                    <div className={styles.catalogueState}>
 
                         <p>
                             Loading crop information...
@@ -385,11 +386,11 @@ export default function PlanPlantPage() {
 
         return (
 
-            <section className="plan-page">
+            <section className={styles.planPage}>
 
-                <div className="plan-container">
+                <div className={styles.planContainer}>
 
-                    <div className="assessment-error">
+                    <div className={styles.assessmentError}>
 
                         <span>
                             ️
@@ -407,7 +408,7 @@ export default function PlanPlantPage() {
 
                             <Link
                                 href="/crops"
-                                className="assessment-submit"
+                                className={styles.errorBackButton}
                             >
                                 ← Back to Crops
                             </Link>
@@ -427,16 +428,16 @@ export default function PlanPlantPage() {
 
     return (
 
-        <section className="plan-page">
+        <section className={styles.planPage}>
 
-            <div className="plan-container">
+            <div className={styles.planContainer}>
 
 
                 {/* HEADER */}
 
-                <div className="plan-header">
+                <div className={styles.planHeader}>
 
-                    <span className="section-badge">
+                    <span className={styles.sectionBadge}>
                          Build & Bloom
                     </span>
 
@@ -456,9 +457,9 @@ export default function PlanPlantPage() {
 
                 {crop && (
 
-                    <div className="selected-crop-card">
+                    <div className={styles.selectedCropCard}>
 
-                        <div className="selected-crop-icon">
+                        <div className={styles.selectedCropIcon}>
                             
                         </div>
 
@@ -487,7 +488,7 @@ export default function PlanPlantPage() {
 
                 {error && (
 
-                    <div className="assessment-error">
+                    <div className={styles.assessmentError}>
 
                         <span>
                             ️
@@ -510,43 +511,56 @@ export default function PlanPlantPage() {
                 )}
 
 
-                {/* SUCCESS */}
-
+                {/* SUCCESS POPUP */}
                 {success && (
-
-                    <div className="auth-success">
-
-                        <strong>
-                            Plan Created!
-                        </strong>
-
-                        <p>
-                            {success}
-                        </p>
-
-                        <Link
-                            href="/plants"
-                            className="auth-success-link"
+                    <div
+                        className="register-modal-overlay"
+                        role="presentation"
+                    >
+                        <div
+                            className="register-modal"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="plan-success-title"
+                            aria-describedby="plan-success-description"
                         >
-                            View My Plants
-                        </Link>
+                            <div className="register-modal-icon">
+                                
+                            </div>
 
+                            <h2 id="plan-success-title">
+                                Planting Plan Created!
+                            </h2>
+
+                            <p id="plan-success-description">
+                                Your planting plan has been saved
+                                successfully. You can now view and
+                                manage your plant in the My Plants
+                                section.
+                            </p>
+
+                            <Link
+                                href="/plants"
+                                className="register-modal-button"
+                            >
+                                View My Plants
+                            </Link>
+                        </div>
                     </div>
-
                 )}
 
 
                 {/* FORM */}
 
                 <form
-                    className="plan-form"
+                    className={styles.planForm}
                     onSubmit={handleSubmit}
                 >
 
 
                     {/* PLAN NAME */}
 
-                    <div className="form-group">
+                    <div className={styles.formGroup}>
 
                         <label htmlFor="plan_name">
                             Plan Name
@@ -567,7 +581,7 @@ export default function PlanPlantPage() {
 
                     {/* LOCATION */}
 
-                    <div className="form-group">
+                    <div className={styles.formGroup}>
 
                         <label htmlFor="location_id">
                             Growing Location
@@ -584,25 +598,47 @@ export default function PlanPlantPage() {
                                 Select a location
                             </option>
 
-                            <option value="1">
-                                Dagupan
-                            </option>
-
-                            <option value="2">
-                                Lingayen
-                            </option>
-
-                            <option value="3">
-                                Urdaneta
-                            </option>
-
-                            <option value="4">
-                                Santa Barbara
-                            </option>
-
-                            <option value="5">
-                                San Carlos
-                            </option>
+                            <option value="8"> Alaminos </option>
+                            <option value="6"> Agno </option>
+                            <option value="7"> Aguilar </option>
+                            <option value="9"> Alcala </option>
+                            <option value="10"> Anda </option>
+                            <option value="11"> Asingan </option>
+                            <option value="12"> Balungao </option>
+                            <option value="13"> Bani </option>
+                            <option value="14"> Basista </option>
+                            <option value="15"> Bautista </option>
+                            <option value="16"> Bayambang </option>
+                            <option value="17"> Binalonan </option>
+                            <option value="18"> Binmaley </option>
+                            <option value="19"> Bolinao </option>
+                            <option value="20"> Bugallon </option>
+                            <option value="21"> Burgos </option>
+                            <option value="22"> Calasiao </option>
+                            <option value="23"> Dasol</option>
+                            <option value="1"> Dagupan </option>
+                            <option value="24"> Infanta </option>
+                            <option value="25"> Labrador </option>
+                            <option value="26"> Laloac </option>
+                            <option value="2"> Lingayen </option>
+                            <option value="27"> Mabini </option>
+                            <option value="28"> Malasiqui </option>
+                            <option value="29"> Manaoag </option>
+                            <option value="30"> Mangaldan </option>
+                            <option value="31"> Mangatarem </option>
+                            <option value="32"> Mapandan </option>
+                            <option value="33"> Natividad </option>
+                            <option value="34"> Pozorrubio </option>
+                            <option value="35"> Rosales </option>
+                            <option value="36"> San Fabian </option>
+                            <option value="37"> San Jacinto </option>
+                            <option value="38"> San Manuel </option>
+                            <option value="39"> San Nicolas </option>
+                            <option value="40"> San Quintin </option>
+                            <option value="4"> Santa Barbara </option>
+                            <option value="41"> Santa Maria </option>
+                            <option value="42"> Sison </option>
+                            <option value="43"> Sual </option>  
 
                         </select>
 
@@ -611,7 +647,7 @@ export default function PlanPlantPage() {
 
                     {/* PLANTING DATE */}
 
-                    <div className="form-group">
+                    <div className={styles.formGroup}>
 
                         <label htmlFor="planting_date">
                             Planting Date
@@ -630,7 +666,7 @@ export default function PlanPlantPage() {
 
                     {/* QUANTITY */}
 
-                    <div className="form-group">
+                    <div className={styles.formGroup}>
 
                         <label htmlFor="quantity">
                             Quantity
@@ -650,7 +686,7 @@ export default function PlanPlantPage() {
 
                     {/* GROWING METHOD */}
 
-                    <div className="form-group">
+                    <div className={styles.formGroup}>
 
                         <label htmlFor="growing_method">
                             Growing Method
@@ -694,7 +730,7 @@ export default function PlanPlantPage() {
 
                     {/* NOTES */}
 
-                    <div className="form-group">
+                    <div className={styles.formGroup}>
 
                         <label htmlFor="notes">
                             Notes
@@ -714,19 +750,19 @@ export default function PlanPlantPage() {
 
                     {/* ACTIONS */}
 
-                    <div className="plan-form-actions">
+                    <div className={styles.planFormActions}>
 
                         <Link
                             href={`/crops/${cropId}`}
-                            className="plan-cancel-button"
+                            className={styles.planCancelButton}
                         >
-                            ← Back to Crop
+                            Back to Crop
                         </Link>
 
 
                         <button
                             type="submit"
-                            className="assessment-submit"
+                            className={styles.planSubmitButton}
                             disabled={saving}
                         >
 

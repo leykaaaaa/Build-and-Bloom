@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { getCrops } from "../../services/cropService";
+import styles from "./crops.module.css";
 
 export default function CropsPage() {
 
@@ -13,6 +14,8 @@ export default function CropsPage() {
     const [crops, setCrops] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("");
 
 
     // =========================================================
@@ -102,15 +105,56 @@ export default function CropsPage() {
 
     }, []);
 
+    const categories = [...new Set(
+        crops
+            .map((crop) => crop.category?.trim())
+            .filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b));
+
+    const normalizedSearch = searchTerm.trim().toLocaleLowerCase();
+    const filteredCrops = crops.filter((crop) => {
+        const matchesCategory =
+            !selectedCategory || crop.category === selectedCategory;
+        const searchableFields = [
+            crop.crop_name,
+            crop.category,
+            crop.description,
+            crop.soil_type,
+            crop.water_requirement,
+            crop.sunlight_requirement,
+            crop.season,
+            crop.environment,
+        ];
+        const matchesSearch =
+            !normalizedSearch ||
+            searchableFields.some((value) =>
+                String(value || "").toLocaleLowerCase().includes(normalizedSearch)
+            );
+
+        return matchesCategory && matchesSearch;
+    });
+
+    function getCropIcon(category) {
+        const normalizedCategory = (category || "").toLocaleLowerCase();
+
+        if (normalizedCategory.includes("fruit")) return "";
+        if (normalizedCategory.includes("herb")) return "";
+        if (normalizedCategory.includes("leaf")) return "";
+        if (normalizedCategory.includes("flower")) return "";
+        if (normalizedCategory.includes("grain")) return "";
+        if (normalizedCategory.includes("root")) return "";
+
+        return "";
+    }
 
     return (
 
-        <section className="catalogue-page">
+        <section className={styles.cataloguePage}>
 
-            <div className="catalogue-header">
+            <div className={styles.catalogueHeader}>
 
-                <span className="section-badge">
-                     Build & Bloom
+                <span className={styles.sectionBadge}>
+                    Build & Bloom
                 </span>
 
                 <h1>
@@ -128,7 +172,7 @@ export default function CropsPage() {
 
             {loading && (
 
-                <div className="catalogue-state">
+                <div className={styles.catalogueState}>
 
                     <p>
                         Loading crops...
@@ -141,7 +185,7 @@ export default function CropsPage() {
 
             {error && (
 
-                <div className="catalogue-state error-state">
+                <div className={`${styles.catalogueState} ${styles.errorState}`}>
 
                     <p>
                         {error}
@@ -151,96 +195,121 @@ export default function CropsPage() {
 
             )}
 
+            {!loading && !error && crops.length > 0 && (
+                <div className={styles.catalogueToolbar}>
+                    <label className={styles.searchField}>
+                        <span className={styles.searchIcon} aria-hidden="true" />
+                        <span className={styles.visuallyHidden}>Search crops</span>
+                        <input
+                            type="search"
+                            value={searchTerm}
+                            onChange={(event) => setSearchTerm(event.target.value)}
+                            placeholder="Search by crop, category, or growing need..."
+                        />
+                        {searchTerm && (
+                            <button
+                                type="button"
+                                className={styles.clearSearch}
+                                onClick={() => setSearchTerm("")}
+                                aria-label="Clear crop search"
+                            >
+                                ×
+                            </button>
+                        )}
+                    </label>
+
+                    <label className={styles.categoryFilter}>
+                        <span className={styles.visuallyHidden}>Filter by category</span>
+                        <select
+                            value={selectedCategory}
+                            onChange={(event) => setSelectedCategory(event.target.value)}
+                        >
+                            <option value="">All categories</option>
+                            {categories.map((category) => (
+                                <option key={category} value={category}>
+                                    {category}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+
+                    <p className={styles.resultCount} aria-live="polite">
+                        <strong>{filteredCrops.length}</strong>
+                        {" "}of {crops.length} crops
+                    </p>
+                </div>
+            )}
+
+            {!loading && !error && crops.length === 0 && (
+                <div className={styles.emptyState}>
+                    <span aria-hidden="true"></span>
+                    <h2>No crops available yet</h2>
+                    <p>Please check back later for crops in the catalogue.</p>
+                </div>
+            )}
 
             {!loading && !error && (
-
-                <div className="crop-grid">
-
-                    {crops.map((crop) => (
-
-                        <article
-                            className="crop-card"
-                            key={crop.crop_id}
-                        >
-
-                            <div className="crop-card-icon">
-                                
-                            </div>
-
-
-                            <div className="crop-card-content">
-
-                                <span className="crop-category">
-                                    {crop.category}
-                                </span>
-
-                                <h2>
-                                    {crop.crop_name}
-                                </h2>
-
-                                <p>
-                                    {crop.description}
-                                </p>
-
-
-                                <div className="crop-info">
-
-                                    <div>
-
-                                        <strong>
-                                             Soil
-                                        </strong>
-
-                                        <span>
-                                            {crop.soil_type}
-                                        </span>
-
-                                    </div>
-
-
-                                    <div>
-
-                                        <strong>
-                                             Water
-                                        </strong>
-
-                                        <span>
-                                            {crop.water_requirement}
-                                        </span>
-
-                                    </div>
-
-
-                                    <div>
-
-                                        <strong>
-                                            ️ Sunlight
-                                        </strong>
-
-                                        <span>
-                                            {crop.sunlight_requirement}
-                                        </span>
-
-                                    </div>
-
+                filteredCrops.length > 0 ? (
+                    <div className={styles.cropGrid}>
+                        {filteredCrops.map((crop) => (
+                            <article
+                                className={styles.cropCard}
+                                key={crop.crop_id}
+                            >
+                                <div className={styles.cropCardIcon} aria-hidden="true">
+                                    {getCropIcon(crop.category)}
                                 </div>
 
+                                <div className={styles.cropCardContent}>
+                                    <span className={styles.cropCategory}>
+                                        {crop.category}
+                                    </span>
 
-                                <Link
-                                    href={`/crops/${crop.crop_id}`}
-                                    className="view-crop-button"
-                                >
-                                    View Details
-                                </Link>
+                                    <h2>{crop.crop_name}</h2>
+                                    <p>{crop.description}</p>
 
-                            </div>
+                                    <div className={styles.cropInfo}>
+                                        <div>
+                                            <strong>Soil</strong>
+                                            <span>{crop.soil_type}</span>
+                                        </div>
+                                        <div>
+                                            <strong>Water</strong>
+                                            <span>{crop.water_requirement}</span>
+                                        </div>
+                                        <div>
+                                            <strong>Sunlight</strong>
+                                            <span>{crop.sunlight_requirement}</span>
+                                        </div>
+                                    </div>
 
-                        </article>
-
-                    ))}
-
-                </div>
-
+                                    <Link
+                                        href={`/crops/${crop.crop_id}`}
+                                        className={styles.viewCropButton}
+                                    >
+                                        View Details
+                                    </Link>
+                                </div>
+                            </article>
+                        ))}
+                    </div>
+                ) : crops.length > 0 ? (
+                    <div className={styles.emptyState}>
+                        <span aria-hidden="true"></span>
+                        <h2>No matching crops</h2>
+                        <p>Try another crop name or category, or clear your filters.</p>
+                        <button
+                            type="button"
+                            className={styles.resetFilters}
+                            onClick={() => {
+                                setSearchTerm("");
+                                setSelectedCategory("");
+                            }}
+                        >
+                            Clear search and filters
+                        </button>
+                    </div>
+                ) : null
             )}
 
         </section>

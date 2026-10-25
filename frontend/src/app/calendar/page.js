@@ -7,28 +7,58 @@ import {
 } from "../../services/plantingCalendarService";
 
 
+
 const locations = [
-    {
-        id: 1,
-        name: "Dagupan"
-    },
-    {
-        id: 2,
-        name: "Lingayen"
-    },
-    {
-        id: 3,
-        name: "Urdaneta"
-    },
-    {
-        id: 4,
-        name: "Santa Barbara"
-    },
-    {
-        id: 5,
-        name: "San Carlos"
-    }
+    { id: 8, name: "Alaminos" },
+    { id: 6, name: "Agno" },
+    { id: 7, name: "Aguilar" },
+    { id: 9, name: "Alcala" },
+    { id: 10, name: "Anda" },
+    { id: 11, name: "Asingan" },
+    { id: 12, name: "Balungao" },
+    { id: 13, name: "Bani" },
+    { id: 14, name: "Basista" },
+    { id: 15, name: "Bautista" },
+    { id: 16, name: "Bayambang" },
+    { id: 17, name: "Binalonan" },
+    { id: 18, name: "Binmaley" },
+    { id: 19, name: "Bolinao" },
+    { id: 20, name: "Bugallon" },
+    { id: 21, name: "Burgos" },
+    { id: 22, name: "Calasiao" },
+    { id: 23, name: "Dasol" },
+    { id: 1, name: "Dagupan" },
+    { id: 24, name: "Infanta" },
+    { id: 25, name: "Labrador" },
+    { id: 26, name: "Laoac" },
+    { id: 2, name: "Lingayen" },
+    { id: 27, name: "Mabini" },
+    { id: 28, name: "Malasiqui" },
+    { id: 29, name: "Manaoag" },
+    { id: 30, name: "Mangaldan" },
+    { id: 31, name: "Mangatarem" },
+    { id: 32, name: "Mapandan" },
+    { id: 33, name: "Natividad" },
+    { id: 34, name: "Pozorrubio" },
+    { id: 35, name: "Rosales" },
+    { id: 5, name: "San Carlos" },
+    { id: 36, name: "San Fabian" },
+    { id: 37, name: "San Jacinto" },
+    { id: 38, name: "San Manuel" },
+    { id: 39, name: "San Nicolas" },
+    { id: 40, name: "San Quintin" },
+    { id: 41, name: "Santa Maria" },
+    { id: 4, name: "Santa Barbara" },
+    { id: 42, name: "Santo Tomas" },
+    { id: 43, name: "Sison" },
+    { id: 44, name: "Sual" },
+    { id: 45, name: "Tayug" },
+    { id: 3, name: "Urdaneta" },
+    { id: 46, name: "Umingan" },
+    { id: 47, name: "Urbiztondo" },
+    { id: 48, name: "Villasis" },
 ];
+
 
 
 function getCropIcon(category) {

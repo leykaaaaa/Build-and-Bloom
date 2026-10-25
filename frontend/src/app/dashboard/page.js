@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import { getPlantingPlans } from "../../services/plantingPlanService";
+import styles from "./dashboard.module.css";
 
 
 export default function DashboardPage() {
@@ -90,15 +91,29 @@ export default function DashboardPage() {
     }, []);
 
 
+    const getPlanStatusClass = (status) => {
+        switch (status) {
+            case "Growing":
+                return styles.statusGrowing;
+            case "Harvested":
+                return styles.statusHarvested;
+            case "Completed":
+                return styles.statusCompleted;
+            case "Planned":
+            default:
+                return styles.statusPlanned;
+        }
+    };
+
     if (loading) {
 
         return (
 
-            <section className="dashboard-page">
+            <section className={styles.dashboardPage}>
 
-                <div className="dashboard-container">
+                <div className={styles.dashboardContainer}>
 
-                    <div className="catalogue-state">
+                    <div className={styles.catalogueState}>
 
                         <p>
                             Loading your dashboard...
@@ -122,26 +137,23 @@ export default function DashboardPage() {
 
     return (
 
-        <section className="dashboard-page">
+        <section className={styles.dashboardPage}>
 
-            <div className="dashboard-container">
+            <div className={styles.dashboardContainer}>
 
 
                 {/* WELCOME */}
 
-                <div className="dashboard-welcome">
+                <div className={styles.dashboardWelcome}>
 
                     <div>
 
-                        <span className="section-badge">
-                             Build & Bloom
+                        <span className={styles.dashboardWelcomeBadge}>
+                            Build & Bloom
                         </span>
 
                         <h1>
-                            Welcome back,{" "}
-                            <span>
-                                {user.full_name}
-                            </span>!
+                            Welcome back, <span>{user.full_name}</span>!
                         </h1>
 
                         <p>
@@ -151,7 +163,7 @@ export default function DashboardPage() {
 
                     </div>
 
-                    <div className="dashboard-welcome-icon">
+                    <div className={styles.dashboardWelcomeIcon} aria-hidden="true">
                         
                     </div>
 
@@ -162,11 +174,9 @@ export default function DashboardPage() {
 
                 {error && (
 
-                    <div className="assessment-error">
+                    <div className={styles.dashboardError}>
 
-                        <span>
-                            ️
-                        </span>
+                        <span aria-hidden="true">!</span>
 
                         <div>
 
@@ -187,19 +197,19 @@ export default function DashboardPage() {
 
                 {/* STAT CARDS */}
 
-                <div className="dashboard-stats">
+                <div className={styles.dashboardStats}>
 
 
-                    <div className="dashboard-stat-card">
+                    <div className={styles.dashboardStatCard}>
 
-                        <div className="dashboard-stat-icon">
+                        <div className={styles.dashboardStatIcon} aria-hidden="true">
                             
                         </div>
 
                         <div>
 
                             <span>
-                                My Plants
+                                Total Plans
                             </span>
 
                             <strong>
@@ -211,30 +221,9 @@ export default function DashboardPage() {
                     </div>
 
 
-                    <div className="dashboard-stat-card">
+                    <div className={styles.dashboardStatCard}>
 
-                        <div className="dashboard-stat-icon">
-                            
-                        </div>
-
-                        <div>
-
-                            <span>
-                                Planting Plans
-                            </span>
-
-                            <strong>
-                                {plans.length}
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div className="dashboard-stat-card">
-
-                        <div className="dashboard-stat-icon">
+                        <div className={styles.dashboardStatIcon} aria-hidden="true">
                             
                         </div>
 
@@ -245,13 +234,7 @@ export default function DashboardPage() {
                             </span>
 
                             <strong>
-                                {
-                                    plans.filter(
-                                        (plan) =>
-                                            plan.status ===
-                                            "Growing"
-                                    ).length
-                                }
+                                {plans.filter((plan) => plan.status === "Growing").length}
                             </strong>
 
                         </div>
@@ -259,9 +242,30 @@ export default function DashboardPage() {
                     </div>
 
 
-                    <div className="dashboard-stat-card">
+                    <div className={styles.dashboardStatCard}>
 
-                        <div className="dashboard-stat-icon">
+                        <div className={styles.dashboardStatIcon} aria-hidden="true">
+                            
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Harvested
+                            </span>
+
+                            <strong>
+                                {plans.filter((plan) => plan.status === "Harvested").length}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div className={styles.dashboardStatCard}>
+
+                        <div className={styles.dashboardStatIcon} aria-hidden="true">
                             
                         </div>
 
@@ -272,13 +276,7 @@ export default function DashboardPage() {
                             </span>
 
                             <strong>
-                                {
-                                    plans.filter(
-                                        (plan) =>
-                                            plan.status ===
-                                            "Completed"
-                                    ).length
-                                }
+                                {plans.filter((plan) => plan.status === "Completed").length}
                             </strong>
 
                         </div>
@@ -291,14 +289,14 @@ export default function DashboardPage() {
 
                 {/* MAIN GRID */}
 
-                <div className="dashboard-grid">
+                <div className={styles.dashboardGrid}>
 
 
                     {/* PLANTING PLANS */}
 
-                    <div className="dashboard-panel">
+                    <div className={styles.dashboardPanel}>
 
-                        <div className="dashboard-panel-header">
+                        <div className={styles.dashboardPanelHeader}>
 
                             <div>
 
@@ -312,33 +310,28 @@ export default function DashboardPage() {
 
                             </div>
 
-                            <Link href="/plants">
-                                View All
-                            </Link>
+                            <Link href="/plants">View All</Link>
 
                         </div>
 
 
                         {plans.length === 0 ? (
 
-                            <div className="dashboard-empty">
+                            <div className={styles.dashboardEmpty}>
 
-                                <div>
-                                    
-                                </div>
+                                <div aria-hidden="true"></div>
 
                                 <h3>
                                     No planting plans yet
                                 </h3>
 
                                 <p>
-                                    Start planning your first
-                                    crop.
+                                    Start planning your first crop.
                                 </p>
 
                                 <Link
                                     href="/crops"
-                                    className="dashboard-action-button"
+                                    className={styles.dashboardActionButton}
                                 >
                                     Explore Crops
                                 </Link>
@@ -347,47 +340,40 @@ export default function DashboardPage() {
 
                         ) : (
 
-                            <div className="dashboard-plan-list">
+                            <div className={styles.dashboardPlanList}>
 
-                                {plans
-                                    .slice(0, 3)
-                                    .map((plan) => (
+                                {plans.slice(0, 3).map((plan) => (
 
-                                        <div
-                                            className="dashboard-plan-item"
-                                            key={plan.plan_id}
-                                        >
+                                    <div
+                                        className={styles.dashboardPlanItem}
+                                        key={plan.plan_id}
+                                    >
 
-                                            <div className="dashboard-plan-icon">
-                                                
-                                            </div>
+                                        <div className={styles.dashboardPlanIcon} aria-hidden="true">
+                                            
+                                        </div>
 
-                                            <div className="dashboard-plan-info">
+                                        <div className={styles.dashboardPlanInfo}>
 
-                                                <strong>
-                                                    {plan.plan_name}
-                                                </strong>
+                                            <strong>
+                                                {plan.plan_name}
+                                            </strong>
 
-                                                <span>
-                                                    {plan.crop_name}
-                                                </span>
-
-                                            </div>
-
-                                            <span
-                                                className={`plant-status status-${plan.status
-                                                    .toLowerCase()
-                                                    .replaceAll(
-                                                        " ",
-                                                        "-"
-                                                    )}`}
-                                            >
-                                                {plan.status}
+                                            <span>
+                                                {plan.crop_name}
                                             </span>
 
                                         </div>
 
-                                    ))}
+                                        <span
+                                            className={`${styles.plantStatus} ${getPlanStatusClass(plan.status)}`}
+                                        >
+                                            {plan.status}
+                                        </span>
+
+                                    </div>
+
+                                ))}
 
                             </div>
 
@@ -398,9 +384,9 @@ export default function DashboardPage() {
 
                     {/* QUICK ACTIONS */}
 
-                    <div className="dashboard-panel">
+                    <div className={styles.dashboardPanel}>
 
-                        <div className="dashboard-panel-header">
+                        <div className={styles.dashboardPanelHeader}>
 
                             <div>
 
@@ -417,17 +403,15 @@ export default function DashboardPage() {
                         </div>
 
 
-                        <div className="dashboard-actions">
+                        <div className={styles.dashboardActions}>
 
 
                             <Link
                                 href="/assessment"
-                                className="dashboard-action-card"
+                                className={styles.dashboardActionCard}
                             >
 
-                                <span>
-                                    
-                                </span>
+                                <span aria-hidden="true"></span>
 
                                 <div>
 
@@ -436,8 +420,7 @@ export default function DashboardPage() {
                                     </strong>
 
                                     <p>
-                                        Find crops suitable
-                                        for your conditions.
+                                        Find crops suitable for your conditions.
                                     </p>
 
                                 </div>
@@ -447,12 +430,10 @@ export default function DashboardPage() {
 
                             <Link
                                 href="/crops"
-                                className="dashboard-action-card"
+                                className={styles.dashboardActionCard}
                             >
 
-                                <span>
-                                    
-                                </span>
+                                <span aria-hidden="true"></span>
 
                                 <div>
 
@@ -461,8 +442,7 @@ export default function DashboardPage() {
                                     </strong>
 
                                     <p>
-                                        Explore available crops
-                                        and their requirements.
+                                        Explore available crops and their requirements.
                                     </p>
 
                                 </div>
@@ -472,12 +452,10 @@ export default function DashboardPage() {
 
                             <Link
                                 href="/weather"
-                                className="dashboard-action-card"
+                                className={styles.dashboardActionCard}
                             >
 
-                                <span>
-                                    ️
-                                </span>
+                                <span aria-hidden="true">️</span>
 
                                 <div>
 
@@ -486,8 +464,7 @@ export default function DashboardPage() {
                                     </strong>
 
                                     <p>
-                                        View current weather
-                                        conditions.
+                                        View current weather conditions.
                                     </p>
 
                                 </div>
@@ -497,12 +474,10 @@ export default function DashboardPage() {
 
                             <Link
                                 href="/calendar"
-                                className="dashboard-action-card"
+                                className={styles.dashboardActionCard}
                             >
 
-                                <span>
-                                    
-                                </span>
+                                <span aria-hidden="true">️</span>
 
                                 <div>
 
@@ -511,8 +486,7 @@ export default function DashboardPage() {
                                     </strong>
 
                                     <p>
-                                        Check planting schedules
-                                        for crops.
+                                        Check planting schedules for crops.
                                     </p>
 
                                 </div>
@@ -530,12 +504,12 @@ export default function DashboardPage() {
 
                 {/* BOTTOM CTA */}
 
-                <div className="dashboard-cta">
+                <div className={styles.dashboardCta}>
 
                     <div>
 
                         <span>
-                             Ready to grow?
+                            Ready to grow?
                         </span>
 
                         <h2>
@@ -543,8 +517,7 @@ export default function DashboardPage() {
                         </h2>
 
                         <p>
-                            Use our crop assessment to understand
-                            which crops match your growing conditions.
+                            Use our crop assessment to understand which crops match your growing conditions.
                         </p>
 
                     </div>
@@ -552,9 +525,9 @@ export default function DashboardPage() {
 
                     <Link
                         href="/assessment"
-                        className="dashboard-cta-button"
+                        className={styles.dashboardCtaButton}
                     >
-                        Start Assessment 
+                        Start Assessment
                     </Link>
 
                 </div>

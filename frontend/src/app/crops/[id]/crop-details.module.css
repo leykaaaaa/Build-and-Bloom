@@ -1,0 +1,715 @@
+
+/* =========================================
+   CROP DETAILS PAGE
+========================================= */
+
+.cropDetailsPage {
+    min-height: 100vh;
+    padding: 55px 7% 80px;
+    background: #fffafc;
+}
+
+.cropDetailsContainer {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.catalogueState {
+    display: grid;
+    place-items: center;
+    min-height: 56vh;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.catalogueState p {
+    color: #49604d;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* BACK LINK */
+
+.backLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 25px;
+    color: #315c3b;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.backLink:hover {
+    color: #d66b8a;
+}
+
+/* DETAILS CARD */
+
+.cropDetailsCard {
+    overflow: hidden;
+    border: 1px solid #f0dfe7;
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 10px 35px rgba(70, 90, 70, 0.07);
+}
+
+/* HERO */
+
+.cropDetailsHero {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    padding: 40px;
+    background: linear-gradient(135deg, #edf7ef 0%, #fff3f7 100%);
+}
+
+.cropDetailsIcon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 115px;
+    height: 115px;
+    border: 1px solid rgba(49, 92, 59, 0.08);
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.8);
+    font-size: 3.5rem;
+}
+
+.cropDetailsHero > div:last-child {
+    min-width: 0;
+}
+
+.cropCategory {
+    display: inline-block;
+    margin-bottom: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: #ffffff;
+    color: #bd5e7b;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.cropDetailsHero h1 {
+    margin-bottom: 12px;
+    color: #315c3b;
+    font-size: 2.5rem;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.cropDetailsHero p {
+    max-width: 700px;
+    color: #637064;
+    font-size: 0.98rem;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+/* DETAILS SECTIONS */
+
+.cropDetailsSection {
+    padding: 35px 40px;
+    border-bottom: 1px solid #f1e6ea;
+}
+
+.cropDetailsSection h2 {
+    margin-bottom: 25px;
+    color: #315c3b;
+    font-size: 1.5rem;
+    line-height: 1.4;
+}
+
+/* GROWING REQUIREMENTS */
+
+.requirementsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.requirementCard {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid #e8eee7;
+    border-radius: 16px;
+    background: #fafcf9;
+    transition:
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.requirementCard:hover {
+    border-color: #cbdccc;
+    transform: translateY(-2px);
+}
+
+.requirementIcon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #edf7ef;
+    font-size: 1.25rem;
+}
+
+.requirementCard > div {
+    min-width: 0;
+}
+
+.requirementCard strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #315c3b;
+    font-size: 0.92rem;
+}
+
+.requirementCard p {
+    color: #6d746e;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+
+/* GROWING INFORMATION */
+
+.growingInfoGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.growingInfoGrid > div {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    padding: 22px;
+    border: 1px solid #f0dfe7;
+    border-radius: 16px;
+    background: #fff7fa;
+}
+
+.growingInfoGrid span {
+    color: #858b85;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.growingInfoGrid strong {
+    color: #315c3b;
+    font-size: 1rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+/* ACTION SECTION */
+
+.cropDetailsActions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    padding: 35px 40px;
+    background: #f7faf6;
+}
+
+.cropDetailsActions > div:first-child {
+    flex: 1;
+    min-width: 0;
+}
+
+.cropDetailsActions h2 {
+    margin-bottom: 10px;
+    color: #315c3b;
+    font-size: 1.4rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.cropDetailsActions p {
+    max-width: 600px;
+    color: #6d746e;
+    font-size: 0.9rem;
+    line-height: 1.75;
+}
+
+.cropDetailsActionButtons {
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: column;
+    gap: 12px;
+    width: 205px;
+}
+
+/* ACTION BUTTONS */
+
+.assessmentButton,
+.planRecommendation {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 46px;
+    padding: 12px 18px;
+    border: 1px solid #315c3b;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.assessmentButton {
+    background: #315c3b;
+    color: #ffffff;
+}
+
+.assessmentButton:hover {
+    border-color: #24482d;
+    background: #24482d;
+    transform: translateY(-2px);
+}
+
+.planRecommendation {
+    border-color: #d66b8a;
+    background: #ffffff;
+    color: #bd5e7b;
+}
+
+.planRecommendation:hover {
+    background: #fff0f5;
+    transform: translateY(-2px);
+}
+
+.assessmentButton:focus-visible,
+.planRecommendation:focus-visible,
+.backLink:focus-visible,
+.backButton:focus-visible {
+    outline: 3px solid rgba(107, 155, 118, 0.4);
+    outline-offset: 3px;
+}
+
+/* BACK BUTTON — ERROR / NOT FOUND */
+
+.backButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 18px;
+    padding: 12px 18px;
+    border: 1px solid #315c3b;
+    border-radius: 12px;
+    background: #315c3b;
+    color: #ffffff;
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.backButton:hover {
+    background: #24482d;
+}
+
+/* ERROR STATE */
+
+.errorState {
+    width: min(100%, 620px);
+    margin: 0 auto;
+    padding: 28px 24px;
+    border: 1px solid #f0d5d5;
+    border-radius: 20px;
+    background: #fff5f5;
+    color: #a64b4b;
+    box-shadow: 0 12px 24px rgba(149, 73, 73, 0.08);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+    .cropDetailsPage {
+        padding: 45px 5% 65px;
+    }
+
+    .cropDetailsHero {
+        gap: 22px;
+        padding: 30px;
+    }
+
+    .cropDetailsHero h1 {
+        font-size: 2.1rem;
+    }
+
+    .cropDetailsSection {
+        padding: 30px;
+    }
+
+    .cropDetailsActions {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 30px;
+    }
+
+    .cropDetailsActionButtons {
+        flex-direction: row;
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .cropDetailsPage {
+        padding: 30px 4% 50px;
+    }
+
+    .cropDetailsCard {
+        border-radius: 18px;
+    }
+
+    .cropDetailsHero {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 25px 20px;
+    }
+
+    .cropDetailsIcon {
+        width: 85px;
+        height: 85px;
+        border-radius: 20px;
+        font-size: 2.8rem;
+    }
+
+    .cropDetailsHero h1 {
+        font-size: 1.9rem;
+    }
+
+    .cropDetailsHero p {
+        font-size: 0.9rem;
+    }
+
+    .cropDetailsSection {
+        padding: 25px 20px;
+    }
+
+    .cropDetailsSection h2 {
+        font-size: 1.3rem;
+    }
+
+    .requirementsGrid,
+    .growingInfoGrid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .requirementCard {
+        padding: 16px;
+    }
+
+    .cropDetailsActions {
+        gap: 22px;
+        padding: 25px 20px;
+    }
+
+    .cropDetailsActions h2 {
+        font-size: 1.25rem;
+    }
+
+    .cropDetailsActionButtons {
+        flex-direction: column;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .backLink,
+    .requirementCard,
+    .assessmentButton,
+    .planRecommendation {
+        transition: none;
+    }
+
+    .requirementCard:hover,
+    .assessmentButton:hover,
+    .planRecommendation:hover {
+        transform: none;
+    }
+}
+
+/* CROP DETAILS REFINEMENTS */
+
+.cropDetailsPage {
+    background:
+        radial-gradient(ellipse at 12% 0%, rgba(229, 241, 229, 0.56), transparent 34rem),
+        #f8faf7;
+}
+
+.cropDetailsContainer {
+    max-width: 1160px;
+}
+
+.backLink {
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+}
+
+.backLink:hover {
+    border-color: #dfe9df;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.cropDetailsCard {
+    border-color: #e5ece4;
+    box-shadow: 0 14px 42px rgba(49, 70, 52, 0.07);
+}
+
+.cropDetailsHero {
+    position: relative;
+    overflow: hidden;
+    min-height: 255px;
+    gap: clamp(24px, 4vw, 42px);
+    padding: clamp(32px, 5vw, 56px);
+    background:
+        radial-gradient(circle at 88% 12%, rgba(255, 255, 255, 0.8), transparent 19rem),
+        linear-gradient(120deg, #eaf5eb 0%, #f6f8ee 55%, #fff0f5 100%);
+}
+
+.cropDetailsHero::after {
+    position: absolute;
+    right: -55px;
+    bottom: -112px;
+    width: 270px;
+    height: 210px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.36);
+    content: "";
+}
+
+.cropDetailsIcon,
+.cropDetailsHero > div:last-child {
+    position: relative;
+    z-index: 1;
+}
+
+.cropDetailsIcon {
+    width: 132px;
+    height: 132px;
+    border-color: rgba(213, 229, 213, 0.9);
+    border-radius: 32px;
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 14px 30px rgba(49, 92, 59, 0.1);
+    font-size: 4.1rem;
+}
+
+.cropCategory {
+    border: 1px solid #f1dce4;
+    background: rgba(255, 255, 255, 0.82);
+}
+
+.cropDetailsHero h1 {
+    margin-bottom: 10px;
+    font-size: clamp(2.2rem, 4vw, 3rem);
+    letter-spacing: -0.04em;
+}
+
+.cropDetailsHero p {
+    max-width: 760px;
+}
+
+.cropDetailsSection {
+    padding: clamp(28px, 4vw, 42px) clamp(24px, 5vw, 56px);
+}
+
+.cropDetailsSection h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 21px;
+    font-size: 1.35rem;
+    letter-spacing: -0.02em;
+}
+
+.cropDetailsSection h2::before {
+    width: 4px;
+    height: 24px;
+    border-radius: 99px;
+    background: #83a98a;
+    content: "";
+}
+
+.requirementsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.requirementCard {
+    min-height: 114px;
+    padding: 17px;
+    border-color: #e7eee5;
+    background: linear-gradient(145deg, #ffffff, #fafcf9);
+}
+
+.requirementCard:hover {
+    background: #ffffff;
+}
+
+.requirementIcon {
+    width: 44px;
+    height: 44px;
+    border: 1px solid #e1eee2;
+}
+
+.requirementCard strong {
+    margin-bottom: 5px;
+    font-size: 0.85rem;
+}
+
+.requirementCard p {
+    font-size: 0.84rem;
+}
+
+.growingInfoGrid > div {
+    position: relative;
+    overflow: hidden;
+    min-height: 120px;
+    justify-content: center;
+    padding: 24px;
+    border-color: #efe1e6;
+    background: linear-gradient(135deg, #fff8fa, #ffffff);
+}
+
+.growingInfoGrid > div::after {
+    position: absolute;
+    right: -20px;
+    bottom: -38px;
+    width: 95px;
+    height: 95px;
+    border-radius: 50%;
+    background: rgba(242, 221, 229, 0.28);
+    content: "";
+}
+
+.growingInfoGrid span,
+.growingInfoGrid strong {
+    position: relative;
+    z-index: 1;
+}
+
+.growingInfoGrid strong {
+    font-size: 1.08rem;
+}
+
+.cropDetailsActions {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(28px, 4vw, 42px) clamp(24px, 5vw, 56px);
+    background:
+        radial-gradient(circle at 85% 110%, rgba(255, 255, 255, 0.9), transparent 20rem),
+        linear-gradient(120deg, #eff7ef, #fff3f7);
+}
+
+.cropDetailsActions h2 {
+    font-size: 1.55rem;
+    letter-spacing: -0.025em;
+}
+
+.cropDetailsActionButtons {
+    width: 220px;
+}
+
+.assessmentButton {
+    box-shadow: 0 8px 18px rgba(49, 92, 59, 0.15);
+}
+
+.planRecommendation {
+    border-color: #ead3dc;
+    box-shadow: 0 5px 14px rgba(150, 81, 105, 0.06);
+}
+
+.backLink:focus-visible,
+.backButton:focus-visible,
+.assessmentButton:focus-visible,
+.planRecommendation:focus-visible {
+    outline-color: rgba(107, 155, 118, 0.55);
+}
+
+@media (max-width: 900px) {
+    .requirementsGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .cropDetailsPage {
+        padding-top: 24px;
+    }
+
+    .cropDetailsHero {
+        min-height: 0;
+        gap: 19px;
+        padding: 25px 20px 28px;
+    }
+
+    .cropDetailsIcon {
+        width: 76px;
+        height: 76px;
+        border-radius: 20px;
+        font-size: 2.35rem;
+    }
+
+    .cropDetailsHero h1 {
+        font-size: 1.85rem;
+    }
+
+    .cropDetailsSection {
+        padding: 24px 20px;
+    }
+
+    .requirementsGrid,
+    .growingInfoGrid {
+        grid-template-columns: 1fr;
+        gap: 11px;
+    }
+
+    .requirementCard {
+        min-height: 0;
+        padding: 15px;
+    }
+
+    .growingInfoGrid > div {
+        min-height: 96px;
+        padding: 18px;
+    }
+
+    .cropDetailsActions {
+        padding: 25px 20px;
+    }
+}
+
+@media (max-width: 400px) {
+    .cropDetailsActions {
+        gap: 18px;
+    }
+
+    .cropDetailsActionButtons {
+        width: 100%;
+    }
+}

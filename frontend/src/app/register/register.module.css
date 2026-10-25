@@ -1,0 +1,85 @@
+.registerPage:global(.auth-page) {
+    min-height: calc(100vh - 80px);
+    padding: 24px 20px;
+}
+
+.registerCard:global(.auth-card) {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.75fr) minmax(0, 1.4fr);
+    grid-template-areas:
+        "header error"
+        "header form"
+        "header footer";
+    gap: 0 36px;
+    width: min(100%, 960px);
+    max-width: 960px;
+    padding: 30px 36px;
+}
+
+.registerCard .registerHeader {
+    grid-area: header;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0;
+    padding-right: 28px;
+    border-right: 1px solid #e3ebe4;
+}
+
+.registerCard .registerError {
+    grid-area: error;
+    margin: 0 0 14px;
+}
+
+.registerCard .registerForm {
+    grid-area: form;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 18px;
+}
+
+.registerCard .registerForm > :global(.auth-button) {
+    grid-column: 1 / -1;
+    margin-top: 2px;
+    padding: 11px 13px;
+}
+
+.registerCard .registerFooter {
+    grid-area: footer;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #e3ebe4;
+}
+
+@media (max-width: 700px) {
+    .registerCard:global(.auth-card) {
+        display: block;
+        padding: 28px 24px;
+    }
+
+    .registerCard .registerHeader {
+        margin-bottom: 24px;
+        padding: 0;
+        border: 0;
+    }
+
+    .registerCard .registerError {
+        margin-bottom: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .registerPage {
+        padding: 24px 14px;
+    }
+
+    .registerCard:global(.auth-card) {
+        padding: 24px 18px;
+    }
+
+    .registerCard .registerForm {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+    }
+}

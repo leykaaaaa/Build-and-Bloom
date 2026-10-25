@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import styles from "./admin.module.css";
 
 export default function AdminPage() {
     const [totalCrops, setTotalCrops] = useState(0);
@@ -90,140 +92,137 @@ export default function AdminPage() {
     }, []);
 
     return (
-        <div style={styles.container}>
+        <div className={styles.dashboard}>
 
             {/* Dashboard Header */}
-            <div style={styles.header}>
+            <header className={styles.header}>
                 <div>
-                    <h1 style={styles.title}>
+                    <span className={styles.eyebrow}>BUILD & BLOOM · ADMIN</span>
+                    <h1 className={styles.title}>
                         Admin Dashboard
                     </h1>
 
-                    <p style={styles.subtitle}>
-                        Manage the data and features of
-                        Build & Bloom.
+                    <p className={styles.subtitle}>
+                        A quick overview of your platform and the data that powers it.
                     </p>
                 </div>
-            </div>
+                <span className={styles.headerIcon} aria-hidden="true"></span>
+            </header>
 
             {/* Dashboard Cards */}
-            <div style={styles.cards}>
+            <section className={styles.statsGrid} aria-label="System statistics">
 
-                <div style={styles.card}>
-                    <p style={styles.cardLabel}>
-                        Total Crops
-                    </p>
-
-                    <h2 style={styles.cardNumber}>
+                <article className={styles.statCard}>
+                    <div className={`${styles.statIcon} ${styles.cropIcon}`} aria-hidden="true"></div>
+                    <div className={styles.statContent}>
+                        <span className={styles.cardLabel}>Total Crops</span>
+                        <strong className={styles.cardNumber}>
                         {loadingCrops
                             ? "..."
                             : totalCrops}
-                    </h2>
+                        </strong>
+                        <span className={styles.cardDescription}>Crops currently in the system</span>
+                    </div>
+                    <Link className={styles.statLink} href="/admin/crops" aria-label="Manage crops">↗</Link>
+                </article>
 
-                    <p style={styles.cardDescription}>
-                        Crops currently in the system
-                    </p>
-                </div>
+                <article className={styles.statCard}>
+                    <div className={`${styles.statIcon} ${styles.locationIcon}`} aria-hidden="true"> </div>
+                    <div className={styles.statContent}>
+                        <span className={styles.cardLabel}>Total Locations</span>
+                        <strong className={styles.cardNumber}>48</strong>
+                        <span className={styles.cardDescription}>Pangasinan locations</span>
+                    </div>
+                    <Link className={styles.statLink} href="/admin/locations" aria-label="Manage locations">↗</Link>
+                </article>
 
-                <div style={styles.card}>
-                    <p style={styles.cardLabel}>
-                        Total Locations
-                    </p>
-
-                    <h2 style={styles.cardNumber}>
-                        48
-                    </h2>
-
-                    <p style={styles.cardDescription}>
-                        Pangasinan locations
-                    </p>
-                </div>
-
-                <div style={styles.card}>
-                    <p style={styles.cardLabel}>
-                        Registered Users
-                    </p>
-
-                    <h2 style={styles.cardNumber}>
+                <article className={styles.statCard}>
+                    <div className={`${styles.statIcon} ${styles.userIcon}`} aria-hidden="true"></div>
+                    <div className={styles.statContent}>
+                        <span className={styles.cardLabel}>Registered Users</span>
+                        <strong className={styles.cardNumber}>
                         {loadingUsers
                             ? "..."
                             : totalUsers}
-                    </h2>
+                        </strong>
+                        <span className={styles.cardDescription}>Users currently registered</span>
+                    </div>
+                    <Link className={styles.statLink} href="/admin/users" aria-label="Manage users">↗</Link>
+                </article>
 
-                    <p style={styles.cardDescription}>
-                        Users currently registered
-                    </p>
-                </div>
-
-                <div style={styles.card}>
-                    <p style={styles.cardLabel}>
-                        Planting Calendar
-                    </p>
-
-                    <h2 style={styles.cardNumber}>
+                <article className={styles.statCard}>
+                    <div className={`${styles.statIcon} ${styles.calendarIcon}`} aria-hidden="true"> </div>
+                    <div className={styles.statContent}>
+                        <span className={styles.cardLabel}>Planting Calendar</span>
+                        <strong className={styles.cardNumber}>
                         {loadingCalendar
                             ? "..."
                             : totalCalendarRecords}
-                    </h2>
+                        </strong>
+                        <span className={styles.cardDescription}>Calendar records in the system</span>
+                    </div>
+                    <Link className={styles.statLink} href="/admin/calendar" aria-label="Manage planting calendar">↗</Link>
+                </article>
 
-                    <p style={styles.cardDescription}>
-                        Calendar records in the system
-                    </p>
-                </div>
+                <article className={styles.statCard}>
+                    <div className={`${styles.statIcon} ${styles.weatherIcon}`} aria-hidden="true"></div>
+                    <div className={styles.statContent}>
+                        <span className={styles.cardLabel}>Weather API</span>
+                        <strong className={`${styles.cardNumber} ${styles.statusValue}`}>Active</strong>
+                        <span className={styles.cardDescription}>OpenWeather integration</span>
+                    </div>
+                </article>
 
-                <div style={styles.card}>
-                    <p style={styles.cardLabel}>
-                        Weather API
-                    </p>
-
-                    <h2 style={styles.cardNumber}>
-                        Active
-                    </h2>
-
-                    <p style={styles.cardDescription}>
-                        OpenWeather integration
-                    </p>
-                </div>
-
-            </div>
+            </section>
 
             {/* System Overview */}
-            <section style={styles.section}>
-
-                <h2 style={styles.sectionTitle}>
-                    System Overview
-                </h2>
-
-                <div style={styles.overview}>
-
+            <section className={styles.overviewSection}>
+                <div className={styles.sectionHeader}>
                     <div>
-                        <h3>
-                            Crop Recommendation Engine
-                        </h3>
+                        <span className={styles.eyebrow}>PLATFORM</span>
+                        <h2 className={styles.sectionTitle}>System Overview</h2>
+                    </div>
+                    <p>Key services and the datasets behind your growing recommendations.</p>
+                </div>
 
-                        <p>
+                <div className={styles.overviewGrid}>
+
+                    <article className={styles.overviewCard}>
+                        <div className={styles.overviewIcon} aria-hidden="true"></div>
+                        <div className={styles.overviewContent}>
+                            <h3>
+                            Crop Recommendation Engine
+                            </h3>
+
+                            <p>
                             The recommendation engine uses
                             crop requirements, location
                             information, weather conditions,
                             planting season, and other
                             compatibility factors to generate
                             crop recommendations.
-                        </p>
-                    </div>
+                            </p>
+                            <Link href="/admin/recommendations">Review recommendations <span aria-hidden="true">→</span></Link>
+                        </div>
+                    </article>
 
-                    <div>
-                        <h3>
+                    <article className={styles.overviewCard}>
+                        <div className={styles.overviewIcon} aria-hidden="true"> </div>
+                        <div className={styles.overviewContent}>
+                            <h3>
                             Dataset Management
-                        </h3>
+                            </h3>
 
-                        <p>
+                            <p>
                             Administrators can manage the
                             agricultural data used by the
                             system, including crops,
                             requirements, locations, and
                             planting calendar information.
-                        </p>
-                    </div>
+                            </p>
+                            <Link href="/admin/crops">Manage system data <span aria-hidden="true">→</span></Link>
+                        </div>
+                    </article>
 
                 </div>
 
@@ -232,86 +231,3 @@ export default function AdminPage() {
         </div>
     );
 }
-
-const styles = {
-    container: {
-        width: "100%",
-        boxSizing: "border-box",
-    },
-
-    header: {
-        marginBottom: "30px",
-    },
-
-    title: {
-        margin: 0,
-        fontSize: "32px",
-        fontWeight: "700",
-        color: "#1f2937",
-    },
-
-    subtitle: {
-        marginTop: "8px",
-        color: "#6b7280",
-        fontSize: "15px",
-    },
-
-    cards: {
-        display: "grid",
-        gridTemplateColumns:
-            "repeat(5, minmax(0, 1fr))",
-        gap: "20px",
-        marginBottom: "30px",
-    },
-
-    card: {
-        backgroundColor: "#ffffff",
-        borderRadius: "12px",
-        padding: "22px",
-        boxShadow:
-            "0 2px 8px rgba(0,0,0,0.06)",
-        border: "1px solid #f1f5f9",
-        boxSizing: "border-box",
-    },
-
-    cardLabel: {
-        margin: 0,
-        color: "#6b7280",
-        fontSize: "14px",
-    },
-
-    cardNumber: {
-        margin: "10px 0",
-        fontSize: "28px",
-        color: "#1f5134",
-    },
-
-    cardDescription: {
-        margin: 0,
-        color: "#9ca3af",
-        fontSize: "13px",
-        lineHeight: "1.4",
-    },
-
-    section: {
-        backgroundColor: "#ffffff",
-        borderRadius: "12px",
-        padding: "25px",
-        boxShadow:
-            "0 2px 8px rgba(0,0,0,0.06)",
-        border: "1px solid #f1f5f9",
-    },
-
-    sectionTitle: {
-        marginTop: 0,
-        marginBottom: "20px",
-        fontSize: "20px",
-        color: "#1f2937",
-    },
-
-    overview: {
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        gap: "30px",
-    },
-};

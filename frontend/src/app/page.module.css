@@ -1,150 +1,397 @@
-.page {
-  --background: #fafafa;
-  --foreground: #fff;
 
-  --text-primary: #000;
-  --text-secondary: #666;
+/* =========================================
+   PLAN THIS PLANT PAGE
+========================================= */
 
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  --button-secondary-border: #ebebeb;
+.planPage {
+  min-height: 100vh;
+  padding: 70px 7%;
+  background: #fffafc;
+  box-sizing: border-box;
+}
 
+.planContainer {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* HEADER */
+
+.planHeader {
+  margin: 25px 0 32px;
+  text-align: center;
+}
+
+.sectionBadge {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: #edf6ed;
+  color: #4d7958;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.planHeader h1 {
+  margin: 8px 0 12px;
+  color: #315c3b;
+  font-size: 2.7rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.planHeader p {
+  max-width: 620px;
+  margin: 0 auto;
+  color: #707870;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+/* SELECTED CROP */
+
+.selectedCropCard {
   display: flex;
-  flex: 1;
-  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 22px;
+  padding: 22px 24px;
+  background: #f3f8f2;
+  border: 1px solid #dce9da;
+  border-radius: 18px;
+  box-sizing: border-box;
+}
+
+.selectedCropIcon {
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-geist-sans);
-  background-color: var(--background);
+  width: 68px;
+  height: 68px;
+  flex-shrink: 0;
+  border-radius: 17px;
+  background: #fff;
+  font-size: 2rem;
+  box-shadow: 0 4px 12px rgba(70, 90, 70, 0.05);
 }
 
-.main {
+.selectedCropCard > div:last-child {
+  min-width: 0;
+}
+
+.selectedCropCard span {
+  display: block;
+  margin-bottom: 3px;
+  color: #829083;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.selectedCropCard h2 {
+  margin: 0 0 3px;
+  color: #315c3b;
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+.selectedCropCard p {
+  margin: 0;
+  color: #707870;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* FORM */
+
+.planForm {
+  padding: 32px;
+  background: #fff;
+  border: 1px solid #eee2e7;
+  border-radius: 22px;
+  box-shadow: 0 8px 28px rgba(70, 90, 70, 0.05);
+  box-sizing: border-box;
+}
+
+/* FORM FIELDS */
+
+.formGroup {
   display: flex;
-  flex: 1;
-  width: 100%;
-  max-width: 800px;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  background-color: var(--foreground);
-  padding: 120px 60px;
-}
-
-.intro {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 24px;
-}
-
-.intro h1 {
-  max-width: 320px;
-  font-size: 40px;
-  font-weight: 600;
-  line-height: 48px;
-  letter-spacing: -2.4px;
-  text-wrap: balance;
-  color: var(--text-primary);
-}
-
-.intro p {
-  max-width: 440px;
-  font-size: 18px;
-  line-height: 32px;
-  text-wrap: balance;
-  color: var(--text-secondary);
-}
-
-.intro a {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.ctas {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  max-width: 440px;
-  gap: 16px;
-  font-size: 14px;
-}
-
-.ctas a {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 128px;
-  border: 1px solid transparent;
-  transition: 0.2s;
-  cursor: pointer;
-  width: fit-content;
-  font-weight: 500;
-}
-
-a.primary {
-  background: var(--text-primary);
-  color: var(--background);
   gap: 8px;
+  margin-bottom: 21px;
 }
 
-a.secondary {
-  border-color: var(--button-secondary-border);
+.formGroup label {
+  color: #4e5a51;
+  font-size: 0.82rem;
+  font-weight: 600;
 }
 
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-  a.primary:hover {
-    background: var(--button-primary-hover);
-    border-color: transparent;
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #ddd7db;
+  border-radius: 11px;
+  background: #fff;
+  color: #4d554f;
+  font-family: inherit;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.formGroup input,
+.formGroup select {
+  min-height: 46px;
+}
+
+.formGroup select {
+  cursor: pointer;
+}
+
+.formGroup textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.formGroup input::placeholder,
+.formGroup textarea::placeholder {
+  color: #a0a7a1;
+}
+
+.formGroup input:hover,
+.formGroup select:hover,
+.formGroup textarea:hover {
+  border-color: #c8d5ca;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  border-color: #8bb596;
+  box-shadow: 0 0 0 3px rgba(139, 181, 150, 0.12);
+}
+
+.formGroup input:disabled,
+.formGroup select:disabled,
+.formGroup textarea:disabled {
+  background: #f7f8f7;
+  cursor: not-allowed;
+}
+
+/* ERROR MESSAGE — LOCAL TO THIS PAGE */
+
+.assessmentError {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  margin-bottom: 22px;
+  padding: 17px 18px;
+  background: #fff5f5;
+  border: 1px solid #f0d5d5;
+  border-radius: 14px;
+}
+
+.assessmentError > span {
+  flex-shrink: 0;
+  font-size: 1.2rem;
+}
+
+.assessmentError strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #a64b4b;
+  font-size: 0.88rem;
+}
+
+.assessmentError p {
+  margin: 0;
+  color: #806565;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* LOADING STATE */
+
+.catalogueState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 250px;
+  color: #707870;
+  text-align: center;
+}
+
+.catalogueState p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* ERROR PAGE BUTTON */
+
+.errorBackButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: #315c3b;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.errorBackButton:hover {
+  background: #264d30;
+}
+
+/* FORM ACTIONS */
+
+.planFormActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.planCancelButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid #d7ddd8;
+  border-radius: 10px;
+  background: #fff;
+  color: #5f6b62;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.planCancelButton:hover {
+  background: #f6f8f6;
+  border-color: #bcc9be;
+  color: #315c3b;
+}
+
+.planSubmitButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 22px;
+  margin-top: 0;
+  border: none;
+  border-radius: 10px;
+  background: #315c3b;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.planSubmitButton:hover:not(:disabled) {
+  background: #264d30;
+  box-shadow: 0 5px 14px rgba(49, 92, 59, 0.15);
+  transform: translateY(-1px);
+}
+
+.planSubmitButton:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 700px) {
+  .planPage {
+    padding: 55px 5%;
   }
 
-  a.secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: transparent;
+  .planHeader {
+    margin-top: 15px;
+  }
+
+  .planHeader h1 {
+    font-size: 2.25rem;
+  }
+
+  .planHeader p {
+    font-size: 0.86rem;
+  }
+
+  .planForm {
+    padding: 25px 21px;
+    border-radius: 18px;
+  }
+
+  .selectedCropCard {
+    padding: 20px;
+    gap: 14px;
+  }
+
+  .selectedCropIcon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    font-size: 1.8rem;
+  }
+
+  .selectedCropCard h2 {
+    font-size: 1.3rem;
   }
 }
 
-@media (max-width: 600px) {
-  .main {
-    padding: 48px 24px;
+@media (max-width: 520px) {
+  .planPage {
+    padding: 45px 4%;
   }
 
-  .intro {
-    gap: 16px;
+  .planHeader h1 {
+    font-size: 2rem;
   }
 
-  .intro h1 {
-    font-size: 32px;
-    line-height: 40px;
-    letter-spacing: -1.92px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .logo {
-    filter: invert();
+  .selectedCropCard {
+    align-items: flex-start;
   }
 
-  .page {
-    --background: #000;
-    --foreground: #000;
-
-    --text-primary: #ededed;
-    --text-secondary: #999;
-
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-    --button-secondary-border: #1a1a1a;
+  .planForm {
+    padding: 22px 18px;
   }
-}
 
-.code {
-  font-family: var(--font-geist-mono);
-  font-size: 0.9em;
-  background: color-mix(in srgb, currentColor 8%, transparent);
-  padding: 0.1em 0.4em;
-  border-radius: 6px;
+  .planFormActions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .planCancelButton,
+  .planSubmitButton {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .assessmentError {
+    padding: 15px;
+  }
 }

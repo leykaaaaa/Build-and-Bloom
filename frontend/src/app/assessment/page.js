@@ -29,8 +29,8 @@ export default function AssessmentPage() {
 
     const [specificCrop, setSpecificCrop] = useState(null);
     const [locations, setLocations] = useState([]);
-const [locationsLoading, setLocationsLoading] = useState(true);
-const [locationsError, setLocationsError] = useState("");
+    const [locationsLoading, setLocationsLoading] = useState(true);
+    const [locationsError, setLocationsError] = useState("");
 
     const [results, setResults] = useState([]);
 
@@ -316,7 +316,7 @@ const result = await assessCrops({
 
                     <div className="specific-crop-banner">
 
-                        <span></span>
+                        <span aria-hidden="true"></span>
 
                         <div>
 
@@ -360,43 +360,44 @@ const result = await assessCrops({
                             </p>
 
 
-                            <label>
+                            <label htmlFor="assessment-location">
                                 Location
                             </label>
 
                             
-<select
-    name="location"
-    value={form.location}
-    onChange={handleChange}
-    required
-    disabled={locationsLoading || locations.length === 0}
->
+                            <select
+                                id="assessment-location"
+                                name="location"
+                                value={form.location}
+                                onChange={handleChange}
+                                required
+                                disabled={locationsLoading || locations.length === 0}
+                            >
 
-    <option value="">
-        {locationsLoading
-            ? "Loading locations..."
-            : "Select your location"}
-    </option>
+                                <option value="">
+                                    {locationsLoading
+                                        ? "Loading locations..."
+                                        : "Select your location"}
+                                </option>
 
-    {locations.map((location) => (
+                                {locations.map((location) => (
 
-        <option
-            key={location.location_id}
-            value={location.location_name}
-        >
-            {location.location_name} ({location.location_type})
-        </option>
+                                    <option
+                                        key={location.location_id}
+                                        value={location.location_name}
+                                    >
+                                        {location.location_name} ({location.location_type})
+                                    </option>
 
-    ))}
+                                ))}
 
-</select>
+                            </select>
 
-{locationsError && (
-    <p className="form-error">
-        {locationsError}
-    </p>
-)}
+                            {locationsError && (
+                                <p className="form-error">
+                                    {locationsError}
+                                </p>
+                            )}
 
                         </div>
 
@@ -422,11 +423,12 @@ const result = await assessCrops({
 
                                 <div className="assessment-field">
 
-                                    <label>
+                                    <label htmlFor="assessment-soil">
                                         Soil Type
                                     </label>
 
                                     <select
+                                        id="assessment-soil"
                                         name="soil"
                                         value={form.soil}
                                         onChange={handleChange}
@@ -462,11 +464,12 @@ const result = await assessCrops({
 
                                 <div className="assessment-field">
 
-                                    <label>
+                                    <label htmlFor="assessment-water">
                                         Water Availability
                                     </label>
 
                                     <select
+                                        id="assessment-water"
                                         name="water"
                                         value={form.water}
                                         onChange={handleChange}
@@ -498,11 +501,12 @@ const result = await assessCrops({
 
                                 <div className="assessment-field">
 
-                                    <label>
+                                    <label htmlFor="assessment-sunlight">
                                         Sunlight
                                     </label>
 
                                     <select
+                                        id="assessment-sunlight"
                                         name="sunlight"
                                         value={form.sunlight}
                                         onChange={handleChange}
@@ -534,11 +538,12 @@ const result = await assessCrops({
 
                                 <div className="assessment-field">
 
-                                    <label>
+                                    <label htmlFor="assessment-environment">
                                         Growing Environment
                                     </label>
 
                                     <select
+                                        id="assessment-environment"
                                         name="environment"
                                         value={form.environment}
                                         onChange={handleChange}
@@ -570,42 +575,53 @@ const result = await assessCrops({
                         </div>
                         {/* PLANTING MONTH */}
 
-                        <div className="assessment-field">
+                        <div className="form-section">
 
-                            <label>
-                                Intended Planting Month
-                            </label>
+                            <h2>
+                                Planting Schedule
+                            </h2>
 
-                            <select
-                                name="planting_month"
-                                value={form.planting_month}
-                                onChange={handleChange}
-                                required
-                            >
-                                <option value="">
-                                    Select planting month
-                                </option>
+                            <p className="form-description">
+                                Choose when you plan to start planting.
+                            </p>
 
-                                {[
-                                    "January",
-                                    "February",
-                                    "March",
-                                    "April",
-                                    "May",
-                                    "June",
-                                    "July",
-                                    "August",
-                                    "September",
-                                    "October",
-                                    "November",
-                                    "December"
-                                ].map((month) => (
-                                    <option key={month} value={month}>
-                                        {month}
+                            <div className="assessment-field">
+                                <label htmlFor="assessment-planting-month">
+                                    Intended Planting Month
+                                </label>
+
+                                <select
+                                    id="assessment-planting-month"
+                                    name="planting_month"
+                                    value={form.planting_month}
+                                    onChange={handleChange}
+                                    required
+                                >
+                                    <option value="">
+                                        Select planting month
                                     </option>
-                                ))}
 
-                            </select>
+                                    {[
+                                        "January",
+                                        "February",
+                                        "March",
+                                        "April",
+                                        "May",
+                                        "June",
+                                        "July",
+                                        "August",
+                                        "September",
+                                        "October",
+                                        "November",
+                                        "December"
+                                    ].map((month) => (
+                                        <option key={month} value={month}>
+                                            {month}
+                                        </option>
+                                    ))}
+
+                                </select>
+                            </div>
 
                         </div>
 
@@ -613,9 +629,7 @@ const result = await assessCrops({
 
                         <div className="assessment-note">
 
-                            <span>
-                                ️
-                            </span>
+                            <span aria-hidden="true">️</span>
 
                             <div>
 
@@ -642,6 +656,7 @@ const result = await assessCrops({
                             type="submit"
                             className="assessment-submit"
                             disabled={loading}
+                            aria-busy={loading}
                         >
 
                             {loading
@@ -719,8 +734,8 @@ const result = await assessCrops({
 
                             <span>
                                 {results.length === 1
-                                    ? "suitable crop found"
-                                    : "suitable crops found"}
+                                    ? "highly suitable crop found"
+                                    : "highly suitable crops found"}
                             </span>
 
                             </div>
@@ -772,7 +787,7 @@ const result = await assessCrops({
 
                             <div className="assessment-weather-summary">
 
-                                <div className="assessment-weather-icon">
+                                <div className="assessment-weather-icon" aria-hidden="true">
                                     ️
                                 </div>
 
@@ -808,20 +823,18 @@ const result = await assessCrops({
 
                             <div className="no-results">
 
-                                <div className="no-results-icon">
+                                <div className="no-results-icon" aria-hidden="true">
                                     
                                 </div>
                                 <h3>
-                                    No suitable crops found
+                                    No highly suitable crops found
                                 </h3>
 
                                 <p>
-                                    Based on the growing conditions you provided,
-                                    none of the available crops currently meet
-                                    the recommended compatibility level. Try
-                                    adjusting your growing conditions or explore
-                                    the Crop Catalogue to learn more about
-                                    different crops.
+                                    {specificCrop
+                                        ? `${specificCrop.crop_name} did not meet the 80% minimum score for a highly suitable recommendation based on the conditions you entered.`
+                                        : "None of the available crops met the 80% minimum score for a highly suitable recommendation based on the conditions you entered."}
+                                    {" "}Try adjusting your growing conditions or explore the Crop Catalogue to learn more about different crops.
                                 </p>
 
                                 <Link
@@ -849,7 +862,7 @@ const result = await assessCrops({
 
                                         <div className="recommendation-top">
 
-                                            <div className="recommendation-icon">
+                                            <div className="recommendation-icon" aria-hidden="true">
                                                 
                                             </div>
 

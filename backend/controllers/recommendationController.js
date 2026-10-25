@@ -740,9 +740,11 @@ function getCropLocationRisk(
     return { level, message };
 }
 
+const HIGH_SUITABILITY_THRESHOLD = 80;
+
 function getCompatibilityLevel(score) {
 
-    if (score >= 80) {
+    if (score >= HIGH_SUITABILITY_THRESHOLD) {
         return "Highly Suitable";
     }
 
@@ -1455,39 +1457,12 @@ planting_season: currentSeason,
 
 
         /*
-         * FILTER RECOMMENDATIONS
-         *
-         * General assessment:
-         *
-         * Only crops with a score of 60+
-         * are returned as recommendations.
-         *
-         * Specific crop assessment:
-         *
-         * Always return the selected crop,
-         * even when it is below 60, because
-         * the user specifically asked:
-         *
-         * "Can I grow this?"
+         * Only highly suitable crops qualify as recommendations.
+         * Apply the same threshold to general and crop-specific assessments.
          */
-
-        let recommendations;
-
-
-        if (crop_id) {
-
-            recommendations =
-                evaluatedCrops;
-
-        } else {
-
-            recommendations =
-                evaluatedCrops.filter(
-                    (crop) =>
-                        crop.score >= 60
-                );
-
-        }
+        const recommendations = evaluatedCrops.filter(
+            (crop) => crop.score >= HIGH_SUITABILITY_THRESHOLD
+        );
 
 
         /*

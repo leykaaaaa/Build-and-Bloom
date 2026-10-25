@@ -7,6 +7,7 @@ import {
     isAuthenticated,
     isAdmin
 } from "../../services/authGuard";
+import styles from "./layout.module.css";
 
 export default function AdminLayout({ children }) {
     const router = useRouter();
@@ -33,76 +34,83 @@ export default function AdminLayout({ children }) {
     const menuItems = [
         {
             name: "Dashboard",
-            path: "/admin"
+            path: "/admin",
+            icon: " "
         },
         {
             name: "Crop Management",
-            path: "/admin/crops"
+            path: "/admin/crops",
+            icon: ""
         },
         {
             name: "Location Management",
-            path: "/admin/locations"
+            path: "/admin/locations",
+            icon: " "
         },
         {
             name: "Planting Calendar",
-            path: "/admin/calendar"
+            path: "/admin/calendar",
+            icon: " "
         },
         {
             name: "User Management",
-            path: "/admin/users"
+            path: "/admin/users",
+            icon: ""
         },
         {
             name: "Recommendations",
-            path: "/admin/recommendations"
+            path: "/admin/recommendations",
+            icon: ""
         },
         {
             name: "Settings",
-            path: "/admin/settings"
+            path: "/admin/settings",
+            icon: ""
         }
     ];
 
     return (
-        <div style={styles.adminContainer}>
+        <div className={styles.adminContainer}>
 
             {/* Sidebar */}
-            <aside style={styles.sidebar}>
+            <aside className={styles.sidebar}>
 
                 {/* Logo / Brand */}
-                <div style={styles.brand}>
-                    <div style={styles.logo}>
+                <div className={styles.brand}>
+                    <div className={styles.logo} aria-hidden="true">
                         
                     </div>
 
                     <div>
-                        <div style={styles.brandName}>
+                        <div className={styles.brandName}>
                             Build & Bloom
                         </div>
 
-                        <div style={styles.brandSubtitle}>
+                        <div className={styles.brandSubtitle}>
                             Admin Panel
                         </div>
                     </div>
                 </div>
 
                 {/* Navigation */}
-                <nav style={styles.navigation}>
+                <nav className={styles.navigation} aria-label="Admin navigation">
 
                     {menuItems.map((item) => {
-                        const isActive =
-                            pathname === item.path;
+                        const isActive = item.path === "/admin"
+                            ? pathname === item.path
+                            : pathname === item.path || pathname.startsWith(`${item.path}/`);
 
                         return (
                             <Link
                                 key={item.path}
                                 href={item.path}
-                                style={{
-                                    ...styles.navItem,
-                                    ...(isActive
-                                        ? styles.activeNavItem
-                                        : {})
-                                }}
+                                className={`${styles.navItem}${isActive ? ` ${styles.activeNavItem}` : ""}`}
+                                aria-current={isActive ? "page" : undefined}
                             >
-                                {item.name}
+                                <span className={styles.navIcon} aria-hidden="true">
+                                    {item.icon}
+                                </span>
+                                <span>{item.name}</span>
                             </Link>
                         );
                     })}
@@ -110,7 +118,7 @@ export default function AdminLayout({ children }) {
                 </nav>
 
                 {/* Bottom */}
-                <div style={styles.sidebarBottom}>
+                <div className={styles.sidebarBottom}>
 
                     <button
                         type="button"
@@ -125,7 +133,7 @@ export default function AdminLayout({ children }) {
 
                             router.replace("/login");
                         }}
-                        style={styles.logoutButton}
+                        className={styles.logoutButton}
                     >
                         Logout
                     </button>
@@ -135,113 +143,10 @@ export default function AdminLayout({ children }) {
             </aside>
 
             {/* Main Content */}
-            <main style={styles.mainContent}>
+            <main className={styles.mainContent}>
                 {children}
             </main>
 
         </div>
     );
 }
-
-const styles = {
-    adminContainer: {
-        display: "flex",
-        minHeight: "100vh",
-        background: "#f8fafc"
-    },
-
-    sidebar: {
-        width: "250px",
-        minHeight: "100vh",
-        background: "#ffffff",
-        borderRight: "1px solid #e5e7eb",
-        display: "flex",
-        flexDirection: "column",
-        position: "fixed",
-        left: 0,
-        top: 0,
-        bottom: 0,
-        zIndex: 100
-    },
-
-    brand: {
-        display: "flex",
-        alignItems: "center",
-        gap: "12px",
-        padding: "24px 20px",
-        borderBottom: "1px solid #f1f5f9"
-    },
-
-    logo: {
-        width: "42px",
-        height: "42px",
-        borderRadius: "12px",
-        background: "#dcfce7",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: "22px"
-    },
-
-    brandName: {
-        fontSize: "18px",
-        fontWeight: "700",
-        color: "#166534"
-    },
-
-    brandSubtitle: {
-        fontSize: "12px",
-        color: "#64748b",
-        marginTop: "2px"
-    },
-
-    navigation: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "6px",
-        padding: "20px 14px",
-        flex: 1
-    },
-
-    navItem: {
-        display: "flex",
-        alignItems: "center",
-        padding: "11px 14px",
-        borderRadius: "8px",
-        textDecoration: "none",
-        color: "#475569",
-        fontSize: "14px",
-        fontWeight: "500",
-        transition: "all 0.2s ease"
-    },
-
-    activeNavItem: {
-        background: "#dcfce7",
-        color: "#166534",
-        fontWeight: "600"
-    },
-
-    sidebarBottom: {
-        padding: "16px 14px",
-        borderTop: "1px solid #f1f5f9"
-    },
-
-    logoutButton: {
-        width: "100%",
-        padding: "11px 14px",
-        border: "none",
-        borderRadius: "8px",
-        background: "#fef2f2",
-        color: "#dc2626",
-        fontSize: "14px",
-        fontWeight: "600",
-        cursor: "pointer"
-    },
-
-    mainContent: {
-        flex: 1,
-        marginLeft: "250px",
-        minWidth: 0,
-        padding: "32px"
-    }
-};

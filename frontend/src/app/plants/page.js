@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import styles from "./plants.module.css";
 
 import {
     getPlantingPlans,
@@ -211,17 +212,44 @@ export default function MyPlantsPage() {
 
         switch (priority?.toLowerCase()) {
 
+            case "urgent":
+            case "critical":
+                return "urgent";
+
             case "high":
-                return "advisory-priority-high";
+                return "high";
 
             case "warning":
-                return "advisory-priority-warning";
+            case "medium":
+                return "medium";
 
+            case "low":
             case "info":
-                return "advisory-priority-info";
+                return "low";
 
             default:
-                return "advisory-priority-default";
+                return "low";
+
+        }
+
+    }
+
+    function getStatusClassName(status) {
+
+        switch (status) {
+
+            case "Growing":
+                return styles.statusGrowing;
+
+            case "Harvested":
+                return styles.statusHarvested;
+
+            case "Completed":
+                return styles.statusCompleted;
+
+            case "Planned":
+            default:
+                return styles.statusPlanned;
 
         }
 
@@ -236,11 +264,11 @@ export default function MyPlantsPage() {
 
         return (
 
-            <section className="plants-page">
+            <section className={styles.plantsPage}>
 
-                <div className="plants-container">
+                <div className={styles.plantsContainer}>
 
-                    <div className="catalogue-state">
+                    <div className={styles.catalogueState}>
 
                         <p>
                             Loading your planting plans...
@@ -259,17 +287,17 @@ export default function MyPlantsPage() {
 
     return (
 
-        <section className="plants-page">
+        <section className={styles.plantsPage}>
 
-            <div className="plants-container">
+            <div className={styles.plantsContainer}>
 
                 {/* HEADER */}
 
-                <div className="plants-header">
+                <div className={styles.plantsHeader}>
 
                     <div>
 
-                        <span className="section-badge">
+                        <span className={styles.sectionBadge}>
                             Build & Bloom
                         </span>
 
@@ -287,7 +315,7 @@ export default function MyPlantsPage() {
 
                     <Link
                         href="/crops"
-                        className="create-plant-button"
+                        className={styles.createPlantButton}
                     >
                         + Plan a Plant
                     </Link>
@@ -299,7 +327,7 @@ export default function MyPlantsPage() {
 
                 {error && (
 
-                    <div className="assessment-error">
+                    <div className={styles.assessmentError}>
 
                         <div>
 
@@ -322,7 +350,7 @@ export default function MyPlantsPage() {
 
                 {advisoryLoadError && (
 
-                    <div className="advisory-load-error">
+                    <div className={styles.advisoryLoadError}>
 
                         <strong>
                             Weather Advisory Notice
@@ -341,9 +369,10 @@ export default function MyPlantsPage() {
 
                 {!error && plans.length === 0 && (
 
-                    <div className="plants-empty">
+                    <div className={styles.plantsEmpty}>
 
-                        <div className="plants-empty-icon">
+                        <div className={styles.plantsEmptyIcon}>
+                            
                         </div>
 
                         <h2>
@@ -357,7 +386,7 @@ export default function MyPlantsPage() {
 
                         <Link
                             href="/crops"
-                            className="assessment-submit"
+                            className={styles.plantsEmptyButton}
                         >
                             Explore Crops
                         </Link>
@@ -371,20 +400,21 @@ export default function MyPlantsPage() {
 
                 {plans.length > 0 && (
 
-                    <div className="plants-grid">
+                    <div className={styles.plantsGrid}>
 
                         {plans.map((plan) => (
 
                             <article
-                                className="plant-plan-card"
+                                className={styles.plantPlanCard}
                                 key={plan.plan_id}
                             >
 
                                 {/* CARD HEADER */}
 
-                                <div className="plant-plan-top">
+                                <div className={styles.plantPlanTop}>
 
-                                    <div className="plant-plan-icon">
+                                    <div className={styles.plantPlanIcon}>
+                                        
                                     </div>
 
                                     <div>
@@ -404,7 +434,7 @@ export default function MyPlantsPage() {
 
                                 {/* CROP */}
 
-                                <div className="plant-plan-crop">
+                                <div className={styles.plantPlanCrop}>
 
                                     <strong>
                                         {plan.crop_name}
@@ -415,7 +445,7 @@ export default function MyPlantsPage() {
 
                                 {/* PLANT DETAILS */}
 
-                                <div className="plant-plan-details">
+                                <div className={styles.plantPlanDetails}>
 
                                     <div>
 
@@ -486,13 +516,13 @@ export default function MyPlantsPage() {
 
                                 {plan.current_weather && (
 
-                                    <div className="plant-weather-section">
+                                    <div className={styles.plantWeatherSection}>
 
                                         <h3>
                                             Current Weather
                                         </h3>
 
-                                        <div className="plant-weather-grid">
+                                        <div className={styles.plantWeatherGrid}>
 
                                             <div>
                                                 <span>
@@ -546,9 +576,9 @@ export default function MyPlantsPage() {
 
                                 {/* CROP-SPECIFIC ADVISORIES */}
 
-                                <div className="plant-advisory-section">
+                                <div className={styles.plantAdvisorySection}>
 
-                                    <div className="plant-advisory-heading">
+                                    <div className={styles.plantAdvisoryHeading}>
 
                                         <div>
 
@@ -567,7 +597,7 @@ export default function MyPlantsPage() {
 
                                     {plan.advisory_message && (
 
-                                        <div className="plant-advisory-empty">
+                                        <div className={styles.plantAdvisoryEmpty}>
                                             {plan.advisory_message}
                                         </div>
 
@@ -576,7 +606,7 @@ export default function MyPlantsPage() {
 
                                     {plan.advisory_error && (
 
-                                        <div className="plant-advisory-empty">
+                                        <div className={styles.plantAdvisoryEmpty}>
                                             {plan.advisory_error}
                                         </div>
 
@@ -587,7 +617,7 @@ export default function MyPlantsPage() {
                                         !plan.advisory_error &&
                                         plan.advisories?.length === 0 && (
 
-                                        <div className="plant-advisory-empty">
+                                        <div className={styles.plantAdvisoryEmpty}>
 
                                             {["Harvested", "Completed"].includes(
                                                 plan.status
@@ -602,25 +632,25 @@ export default function MyPlantsPage() {
 
                                     {plan.advisories?.length > 0 && (
 
-                                        <div className="plant-advisory-list">
+                                        <div className={styles.plantAdvisoryList}>
 
                                             {plan.advisories.map(
                                                 (advisory, index) => (
 
                                                     <div
-                                                        className={`plant-advisory-card ${getPriorityClass(
+                                                        className={`${styles.plantAdvisoryCard} ${styles[getPriorityClass(
                                                             advisory.priority
-                                                        )}`}
+                                                        )] || ""}`}
                                                         key={`${plan.plan_id}-${advisory.type}-${index}`}
                                                     >
 
-                                                        <div className="plant-advisory-card-header">
+                                                        <div className={styles.plantAdvisoryCardHeader}>
 
                                                             <strong>
                                                                 {advisory.title}
                                                             </strong>
 
-                                                            <span className="plant-advisory-priority">
+                                                            <span className={styles.plantAdvisoryPriority}>
                                                                 {advisory.priority}
                                                             </span>
 
@@ -644,11 +674,11 @@ export default function MyPlantsPage() {
 
                                 {/* STATUS */}
 
-                                <div className="plant-plan-status-section">
+                                <div className={styles.plantPlanStatusSection}>
 
                                     <div>
 
-                                        <span className="plant-status-label">
+                                        <span className={styles.plantStatusLabel}>
                                             Plant Status
                                         </span>
 
@@ -667,7 +697,7 @@ export default function MyPlantsPage() {
                                                     event.target.value
                                                 )
                                             }
-                                            className="plant-status-select"
+                                            className={styles.plantStatusSelect}
                                         >
 
                                             {statusOptions.map(
@@ -691,7 +721,7 @@ export default function MyPlantsPage() {
                                     {updatingPlanId ===
                                         plan.plan_id && (
 
-                                        <span className="plant-status-saving">
+                                        <span className={styles.plantStatusSaving}>
                                             Saving...
                                         </span>
 
@@ -702,21 +732,18 @@ export default function MyPlantsPage() {
 
                                 {/* FOOTER */}
 
-                                <div className="plant-plan-footer">
+                                <div className={styles.plantPlanFooter}>
 
                                     <span
-                                        className={`plant-status status-${(
-                                            plan.status ||
-                                            "Planned"
-                                        )
-                                            .toLowerCase()
-                                            .replaceAll(" ", "-")}`}
+                                        className={getStatusClassName(
+                                            plan.status || "Planned"
+                                        )}
                                     >
                                         {plan.status ||
                                             "Planned"}
                                     </span>
 
-                                    <span className="plant-plan-id">
+                                    <span className={styles.plantPlanId}>
                                         Plan #{plan.plan_id}
                                     </span>
 

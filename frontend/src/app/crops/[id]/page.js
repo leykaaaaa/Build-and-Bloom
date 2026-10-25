@@ -5,6 +5,20 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
 import { getCropById } from "../../../services/cropService";
+import styles from "./crop-details.module.css";
+
+function getCropIcon(category) {
+    const normalizedCategory = (category || "").toLowerCase();
+
+    if (normalizedCategory.includes("fruit")) return "";
+    if (normalizedCategory.includes("herb")) return "";
+    if (normalizedCategory.includes("leaf")) return "";
+    if (normalizedCategory.includes("flower")) return "";
+    if (normalizedCategory.includes("grain")) return "";
+    if (normalizedCategory.includes("root")) return "";
+
+    return "";
+}
 
 export default function CropDetailsPage() {
 
@@ -108,13 +122,35 @@ export default function CropDetailsPage() {
     }, [id]);
 
 
+    const cropIcon = getCropIcon(crop?.category);
+
+    const requirementCards = [
+        { label: "Soil Type", value: crop?.soil_type || "Not specified", icon: " " },
+        { label: "Water Requirement", value: crop?.water_requirement || "Not specified", icon: "" },
+        { label: "Sunlight", value: crop?.sunlight_requirement || "Not specified", icon: "️" },
+        {
+            label: "Temperature",
+            value: crop?.min_temperature != null && crop?.max_temperature != null
+                ? `${crop.min_temperature}°C - ${crop.max_temperature}°C`
+                : "Not specified",
+            icon: "️",
+        },
+        { label: "Season", value: crop?.season || "Not specified", icon: "️" },
+        { label: "Growing Environment", value: crop?.environment || "Not specified", icon: "" },
+    ];
+
+    const growingInfo = [
+        { label: "Growing Period", value: crop?.growing_period || "Not specified" },
+        { label: "Harvest Period", value: crop?.harvest_period || "Not specified" },
+    ];
+
     if (loading) {
 
         return (
 
-            <section className="crop-details-page">
+            <section className={styles.cropDetailsPage}>
 
-                <div className="catalogue-state">
+                <div className={styles.catalogueState}>
 
                     <p>
                         Loading crop information...
@@ -133,9 +169,9 @@ export default function CropDetailsPage() {
 
         return (
 
-            <section className="crop-details-page">
+            <section className={styles.cropDetailsPage}>
 
-                <div className="catalogue-state error-state">
+                <div className={`${styles.catalogueState} ${styles.errorState}`}>
 
                     <p>
                         {error || "Crop not found."}
@@ -143,9 +179,9 @@ export default function CropDetailsPage() {
 
                     <Link
                         href="/crops"
-                        className="back-button"
+                        className={styles.backButton}
                     >
-                        ← Back to Crop Catalogue
+                        Back to Crop Catalogue
                     </Link>
 
                 </div>
@@ -159,33 +195,33 @@ export default function CropDetailsPage() {
 
     return (
 
-        <section className="crop-details-page">
+        <section className={styles.cropDetailsPage}>
 
-            <div className="crop-details-container">
+            <div className={styles.cropDetailsContainer}>
 
 
                 <Link
                     href="/crops"
-                    className="back-link"
+                    className={styles.backLink}
                 >
                     ← Back to Crop Catalogue
                 </Link>
 
 
-                <div className="crop-details-card">
+                <div className={styles.cropDetailsCard}>
 
 
                     {/* HERO */}
 
-                    <div className="crop-details-hero">
+                    <div className={styles.cropDetailsHero}>
 
-                        <div className="crop-details-icon">
-                            
+                        <div className={styles.cropDetailsIcon} aria-hidden="true">
+                            {cropIcon}
                         </div>
 
                         <div>
 
-                            <span className="crop-category">
+                            <span className={styles.cropCategory}>
                                 {crop.category}
                             </span>
 
@@ -204,142 +240,31 @@ export default function CropDetailsPage() {
 
                     {/* GROWING REQUIREMENTS */}
 
-                    <div className="crop-details-section">
+                    <div className={styles.cropDetailsSection}>
 
                         <h2>
                             Growing Requirements
                         </h2>
 
-                        <div className="requirements-grid">
+                        <div className={styles.requirementsGrid}>
 
+                            {requirementCards.map((requirement) => (
+                                <div key={requirement.label} className={styles.requirementCard}>
+                                    <span className={styles.requirementIcon} aria-hidden="true">
+                                        {requirement.icon}
+                                    </span>
 
-                            <div className="requirement-card">
+                                    <div>
+                                        <strong>
+                                            {requirement.label}
+                                        </strong>
 
-                                <span className="requirement-icon">
-                                    
-                                </span>
-
-                                <div>
-
-                                    <strong>
-                                        Soil Type
-                                    </strong>
-
-                                    <p>
-                                        {crop.soil_type}
-                                    </p>
-
+                                        <p>
+                                            {requirement.value}
+                                        </p>
+                                    </div>
                                 </div>
-
-                            </div>
-
-
-                            <div className="requirement-card">
-
-                                <span className="requirement-icon">
-                                    
-                                </span>
-
-                                <div>
-
-                                    <strong>
-                                        Water Requirement
-                                    </strong>
-
-                                    <p>
-                                        {crop.water_requirement}
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-
-                            <div className="requirement-card">
-
-                                <span className="requirement-icon">
-                                    ️
-                                </span>
-
-                                <div>
-
-                                    <strong>
-                                        Sunlight
-                                    </strong>
-
-                                    <p>
-                                        {crop.sunlight_requirement}
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-
-                            <div className="requirement-card">
-
-                                <span className="requirement-icon">
-                                    ️
-                                </span>
-
-                                <div>
-
-                                    <strong>
-                                        Temperature
-                                    </strong>
-
-                                    <p>
-                                        {crop.min_temperature}°C -
-                                        {" "}
-                                        {crop.max_temperature}°C
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-
-                            <div className="requirement-card">
-
-                                <span className="requirement-icon">
-                                    ️
-                                </span>
-
-                                <div>
-
-                                    <strong>
-                                        Season
-                                    </strong>
-
-                                    <p>
-                                        {crop.season}
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-
-                            <div className="requirement-card">
-
-                                <span className="requirement-icon">
-                                    
-                                </span>
-
-                                <div>
-
-                                    <strong>
-                                        Growing Environment
-                                    </strong>
-
-                                    <p>
-                                        {crop.environment}
-                                    </p>
-
-                                </div>
-
-                            </div>
-
+                            ))}
 
                         </div>
 
@@ -348,38 +273,25 @@ export default function CropDetailsPage() {
 
                     {/* GROWING INFORMATION */}
 
-                    <div className="crop-details-section">
+                    <div className={styles.cropDetailsSection}>
 
                         <h2>
                             Growing Information
                         </h2>
 
-                        <div className="growing-info-grid">
+                        <div className={styles.growingInfoGrid}>
 
-                            <div>
+                            {growingInfo.map((item) => (
+                                <div key={item.label}>
+                                    <span>
+                                        {item.label}
+                                    </span>
 
-                                <span>
-                                    Growing Period
-                                </span>
-
-                                <strong>
-                                    {crop.growing_period}
-                                </strong>
-
-                            </div>
-
-
-                            <div>
-
-                                <span>
-                                    Harvest Period
-                                </span>
-
-                                <strong>
-                                    {crop.harvest_period}
-                                </strong>
-
-                            </div>
+                                    <strong>
+                                        {item.value}
+                                    </strong>
+                                </div>
+                            ))}
 
                         </div>
 
@@ -388,7 +300,7 @@ export default function CropDetailsPage() {
 
                     {/* ACTIONS */}
 
-                    <div className="crop-details-actions">
+                    <div className={styles.cropDetailsActions}>
 
                         <div>
 
@@ -406,11 +318,11 @@ export default function CropDetailsPage() {
                         </div>
 
 
-                        <div className="crop-details-action-buttons">
+                        <div className={styles.cropDetailsActionButtons}>
 
                             <Link
                                 href={`/assessment?crop=${crop.crop_id}`}
-                                className="assessment-button"
+                                className={styles.assessmentButton}
                             >
                                 Can I Grow This?
                             </Link>
@@ -418,9 +330,9 @@ export default function CropDetailsPage() {
 
                             <Link
                                 href={`/plants/plan?crop=${crop.crop_id}`}
-                                className="plan-recommendation"
+                                className={styles.planRecommendation}
                             >
-                                Plan This Plant 
+                                Plan This Plant
                             </Link>
 
                         </div>
