@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import logoImage from "../../../IMAGES/crop images/logo.png";
 
 export default function Home() {
     return (
@@ -54,7 +56,13 @@ export default function Home() {
                     <div className="plant-card">
 
                         <div className="plant-circle">
-                            
+                            <Image
+                                src={logoImage}
+                                alt="Build & Bloom"
+                                width={140}
+                                height={140}
+                                className="plant-logo"
+                            />
                         </div>
 
                         <h3>
@@ -694,5 +702,4 @@ export default function Home() {
         </div>
     );
 }
-
 

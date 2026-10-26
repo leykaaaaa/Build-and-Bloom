@@ -67,17 +67,13 @@
     background: linear-gradient(135deg, #edf7ef 0%, #fff3f7 100%);
 }
 
-.cropDetailsIcon {
-    display: flex;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-    width: 115px;
-    height: 115px;
+.cropDetailsImage {
+    flex: 0 0 132px;
+    width: 132px;
+    height: 132px;
     border: 1px solid rgba(49, 92, 59, 0.08);
     border-radius: 25px;
     background: rgba(255, 255, 255, 0.8);
-    font-size: 3.5rem;
 }
 
 .cropDetailsHero > div:last-child {
@@ -390,11 +386,11 @@
         padding: 25px 20px;
     }
 
-    .cropDetailsIcon {
+    .cropDetailsImage {
+        flex-basis: 85px;
         width: 85px;
         height: 85px;
         border-radius: 20px;
-        font-size: 2.8rem;
     }
 
     .cropDetailsHero h1 {
@@ -503,20 +499,17 @@
     content: "";
 }
 
-.cropDetailsIcon,
+.cropDetailsImage,
 .cropDetailsHero > div:last-child {
     position: relative;
     z-index: 1;
 }
 
-.cropDetailsIcon {
-    width: 132px;
-    height: 132px;
+.cropDetailsImage {
     border-color: rgba(213, 229, 213, 0.9);
     border-radius: 32px;
     background: rgba(255, 255, 255, 0.86);
     box-shadow: 0 14px 30px rgba(49, 92, 59, 0.1);
-    font-size: 4.1rem;
 }
 
 .cropCategory {
@@ -668,11 +661,11 @@
         padding: 25px 20px 28px;
     }
 
-    .cropDetailsIcon {
+    .cropDetailsImage {
+        flex-basis: 76px;
         width: 76px;
         height: 76px;
         border-radius: 20px;
-        font-size: 2.35rem;
     }
 
     .cropDetailsHero h1 {

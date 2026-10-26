@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
+import logoImage from "../../../../IMAGES/crop images/logo.png";
 import {
     isAuthenticated,
     isAdmin
@@ -77,9 +79,13 @@ export default function AdminLayout({ children }) {
 
                 {/* Logo / Brand */}
                 <div className={styles.brand}>
-                    <div className={styles.logo} aria-hidden="true">
-                        
-                    </div>
+                    <Image
+                        src={logoImage}
+                        alt=""
+                        width={44}
+                        height={44}
+                        className={styles.logo}
+                    />
 
                     <div>
                         <div className={styles.brandName}>

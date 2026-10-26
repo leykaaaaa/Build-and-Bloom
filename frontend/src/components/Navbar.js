@@ -1,8 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import logoImage from "../../../IMAGES/crop images/logo.png";
 import styles from "./Navbar.module.css";
 
 export default function Navbar() {
@@ -126,7 +128,14 @@ export default function Navbar() {
 
                 <aside className={`${styles.sidebar}${menuOpen ? ` ${styles.sidebarOpen}` : ""}`}>
                     <Link href="/dashboard" className={styles.brand} onClick={() => setMenuOpen(false)}>
-                        <span className={styles.brandMark} aria-hidden="true" />
+                        <span className={styles.brandMark}>
+                            <Image
+                                src={logoImage}
+                                alt=""
+                                width={42}
+                                height={42}
+                            />
+                        </span>
                         <span className={styles.brandText}>
                             Build <span>&</span> Bloom
                         </span>
@@ -176,9 +185,13 @@ export default function Navbar() {
                         href="/"
                         className="navbar-brand"
                     >
-                        <span className="brand-icon">
-                            
-                        </span>
+                        <Image
+                            src={logoImage}
+                            alt=""
+                            width={42}
+                            height={42}
+                            className="brand-icon"
+                        />
 
                         <span className="brand-text">
                             Build <span>&</span> Bloom
@@ -201,9 +214,13 @@ export default function Navbar() {
                     href={user ? "/dashboard" : "/"}
                     className="navbar-brand"
                 >
-                    <span className="brand-icon">
-                        
-                    </span>
+                    <Image
+                        src={logoImage}
+                        alt=""
+                        width={42}
+                        height={42}
+                        className="brand-icon"
+                    />
 
                     <span className="brand-text">
                         Build <span>&</span> Bloom

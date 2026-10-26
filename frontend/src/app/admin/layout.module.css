@@ -32,15 +32,15 @@
 }
 
 .logo {
-    display: grid;
+    display: block;
     flex: 0 0 44px;
     place-items: center;
     width: 44px;
     height: 44px;
+    object-fit: cover;
     border: 1px solid #dbe9dc;
     border-radius: 14px;
     background: linear-gradient(145deg, #edf7ef, #fff3f7);
-    font-size: 1.4rem;
 }
 
 .brandName {

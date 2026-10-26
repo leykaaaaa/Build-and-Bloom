@@ -5,30 +5,7 @@ import { useEffect, useState } from "react";
 import {
     getPlantingCalendar
 } from "../../services/plantingCalendarService";
-
-
-function getCropIcon(category) {
-    const value =
-        category?.toLowerCase() || "";
-
-    if (value.includes("vegetable")) {
-        return "VEG";
-    }
-
-    if (value.includes("root")) {
-        return "ROOT";
-    }
-
-    if (value.includes("legume")) {
-        return "LEG";
-    }
-
-    if (value.includes("rice") || value.includes("cereal")) {
-        return "GRAIN";
-    }
-
-    return "CROP";
-}
+import CropImage from "../../components/CropImage";
 
 
 export default function CalendarPage() {
@@ -345,9 +322,11 @@ export default function CalendarPage() {
                                         >
 
                                             <div className="calendar-card-top">
-                                                <div className="calendar-crop-icon" aria-hidden="true">
-                                                    {getCropIcon(crop.category)}
-                                                </div>
+                                                <CropImage
+                                                    cropName={crop.crop_name}
+                                                    className="calendar-crop-image"
+                                                    sizes="54px"
+                                                />
                                                 <div>
                                                     <span className="crop-category">
                                                         {crop.category}

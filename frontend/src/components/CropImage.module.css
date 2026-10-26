@@ -1,0 +1,10 @@
+.imageFrame {
+    position: relative;
+    display: block;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.image {
+    object-fit: cover;
+}

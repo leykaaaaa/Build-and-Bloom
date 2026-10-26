@@ -9,6 +9,7 @@ import {
 
 import { assessCrops } from "../../services/recommendationService";
 import { getCropById } from "../../services/cropService";
+import CropImage from "../../components/CropImage";
 
 export default function AssessmentPage() {
 
@@ -294,7 +295,7 @@ const result = await assessCrops({
                 <div className="assessment-header">
 
                     <span className="section-badge">
-                         Build & Bloom
+                        Build & Bloom
                     </span>
 
                     <h1>
@@ -302,11 +303,34 @@ const result = await assessCrops({
                     </h1>
 
                     <p>
-                        Tell us about your growing conditions
-                        and Build & Bloom will evaluate crop
-                        compatibility for you.
+                        Get crop recommendations tailored to your location,
+                        growing conditions, and planting schedule.
                     </p>
 
+                </div>
+
+                <div className="assessment-steps" aria-label="Assessment steps">
+                    <div className="assessment-step">
+                        <span>01</span>
+                        <div>
+                            <strong>Choose location</strong>
+                            <small>Where you'll grow</small>
+                        </div>
+                    </div>
+                    <div className="assessment-step">
+                        <span>02</span>
+                        <div>
+                            <strong>Set conditions</strong>
+                            <small>Soil, water, and sunlight</small>
+                        </div>
+                    </div>
+                    <div className="assessment-step">
+                        <span>03</span>
+                        <div>
+                            <strong>Pick a month</strong>
+                            <small>When you plan to plant</small>
+                        </div>
+                    </div>
                 </div>
 
 
@@ -345,6 +369,13 @@ const result = await assessCrops({
 
                     <form onSubmit={handleSubmit}>
 
+                        <div className="assessment-form-heading">
+                            <div>
+                                <span>YOUR GROWING PLAN</span>
+                                <h2>Assessment details</h2>
+                            </div>
+                            <p>Complete each section to get your crop matches.</p>
+                        </div>
 
                         {/* LOCATION */}
 
@@ -585,7 +616,7 @@ const result = await assessCrops({
                                 Choose when you plan to start planting.
                             </p>
 
-                            <div className="assessment-field">
+                            <div className="assessment-field assessment-month-field">
                                 <label htmlFor="assessment-planting-month">
                                     Intended Planting Month
                                 </label>
@@ -862,9 +893,11 @@ const result = await assessCrops({
 
                                         <div className="recommendation-top">
 
-                                            <div className="recommendation-icon" aria-hidden="true">
-                                                
-                                            </div>
+                                            <CropImage
+                                                cropName={crop.crop_name}
+                                                className="recommendation-image"
+                                                sizes="52px"
+                                            />
 
                                             <div>
 

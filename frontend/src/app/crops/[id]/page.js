@@ -5,20 +5,8 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
 import { getCropById } from "../../../services/cropService";
+import CropImage from "../../../components/CropImage";
 import styles from "./crop-details.module.css";
-
-function getCropIcon(category) {
-    const normalizedCategory = (category || "").toLowerCase();
-
-    if (normalizedCategory.includes("fruit")) return "";
-    if (normalizedCategory.includes("herb")) return "";
-    if (normalizedCategory.includes("leaf")) return "";
-    if (normalizedCategory.includes("flower")) return "";
-    if (normalizedCategory.includes("grain")) return "";
-    if (normalizedCategory.includes("root")) return "";
-
-    return "";
-}
 
 export default function CropDetailsPage() {
 
@@ -122,8 +110,6 @@ export default function CropDetailsPage() {
     }, [id]);
 
 
-    const cropIcon = getCropIcon(crop?.category);
-
     const requirementCards = [
         { label: "Soil Type", value: crop?.soil_type || "Not specified", icon: " " },
         { label: "Water Requirement", value: crop?.water_requirement || "Not specified", icon: "" },
@@ -215,9 +201,11 @@ export default function CropDetailsPage() {
 
                     <div className={styles.cropDetailsHero}>
 
-                        <div className={styles.cropDetailsIcon} aria-hidden="true">
-                            {cropIcon}
-                        </div>
+                        <CropImage
+                            cropName={crop.crop_name}
+                            className={styles.cropDetailsImage}
+                            sizes="(max-width: 600px) 76px, 132px"
+                        />
 
                         <div>
 

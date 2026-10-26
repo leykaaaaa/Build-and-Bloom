@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { getCrops } from "../../services/cropService";
+import CropImage from "../../components/CropImage";
 import styles from "./crops.module.css";
 
 export default function CropsPage() {
@@ -134,19 +135,6 @@ export default function CropsPage() {
         return matchesCategory && matchesSearch;
     });
 
-    function getCropIcon(category) {
-        const normalizedCategory = (category || "").toLocaleLowerCase();
-
-        if (normalizedCategory.includes("fruit")) return "";
-        if (normalizedCategory.includes("herb")) return "";
-        if (normalizedCategory.includes("leaf")) return "";
-        if (normalizedCategory.includes("flower")) return "";
-        if (normalizedCategory.includes("grain")) return "";
-        if (normalizedCategory.includes("root")) return "";
-
-        return "";
-    }
-
     return (
 
         <section className={styles.cataloguePage}>
@@ -256,9 +244,11 @@ export default function CropsPage() {
                                 className={styles.cropCard}
                                 key={crop.crop_id}
                             >
-                                <div className={styles.cropCardIcon} aria-hidden="true">
-                                    {getCropIcon(crop.category)}
-                                </div>
+                                <CropImage
+                                    cropName={crop.crop_name}
+                                    className={styles.cropCardImage}
+                                    sizes="(max-width: 650px) 90vw, (max-width: 1050px) 45vw, 30vw"
+                                />
 
                                 <div className={styles.cropCardContent}>
                                     <span className={styles.cropCategory}>
