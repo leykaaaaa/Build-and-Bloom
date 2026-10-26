@@ -328,9 +328,9 @@ async function loadWeather(selectedLocation) {
 
                     <div>
 
-                        <span>
-                             Growing Location
-                        </span>
+                        <label htmlFor="weather-location">
+                            Growing Location
+                        </label>
 
                         <strong>
                             {location}, Pangasinan
@@ -340,6 +340,7 @@ async function loadWeather(selectedLocation) {
 
 
                 <select
+    id="weather-location"
     value={location}
     onChange={handleLocationChange}
     disabled={locations.length === 0}

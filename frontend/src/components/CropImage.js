@@ -20,6 +20,9 @@ import squashImage from "../../../IMAGES/crop images/squash.png";
 import stringBeansImage from "../../../IMAGES/crop images/string beans.png";
 import tomatoImage from "../../../IMAGES/crop images/tomato.png";
 import watermelonImage from "../../../IMAGES/crop images/watermelon.png";
+import bananaImage from "../../../IMAGES/crop images/banana.png";
+import calamansiImage from "../../../IMAGES/crop images/calamansi.png";
+import guavaImage from "../../../IMAGES/crop images/guava.png";
 import styles from "./CropImage.module.css";
 
 const cropImages = {
@@ -46,6 +49,9 @@ const cropImages = {
     dieffenbachia: dieffenbachiaImage,
     chili: chiliImage,
     chilipepper: chiliImage,
+    banana: bananaImage,
+    calamansi:calamansiImage,
+    guava: guavaImage,
 };
 
 export function getCropImageSource(cropName) {
